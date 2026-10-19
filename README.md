@@ -8,6 +8,8 @@ Web chúc mừng sinh nhật tuổi 20 của **Nguyễn Lan** (19/11/2006 - 19/1
 - **Giai đoạn 2**: Thiệp chúc mừng Glassmorphism + giai điệu Happy Birthday (Web Audio API)
 - **Giai đoạn 3**: Không gian bánh sinh nhật 3D tương tác (Three.js + WebGL 2.0)
   - Xoay 360° bằng chuột/touch
+  - Auto-rotate nhẹ nhàng quanh bánh
+  - Khung ảnh kỷ niệm 3D xung quanh (5-20 ảnh, billboard effect)
   - Thổi nến bằng micro hoặc nút bấm
   - Pháo hoa chân thực khi thổi tắt nến
   - Đổi 3 sắc thái kem bánh
@@ -15,11 +17,13 @@ Web chúc mừng sinh nhật tuổi 20 của **Nguyễn Lan** (19/11/2006 - 19/1
 
 ## 🚀 Cách chạy
 
-### Cách 1: Dùng npx (Khuyến nghị)
+> ⚠️ **QUAN TRỌNG**: Phải dùng `serve` (có chữ **v**), KHÔNG phải `ser`. Package `ser` trên npm là package lừa đảo/đáng ngờ, đã deprecated và có lỗ hổng bảo mật nghiêm trọng.
+
+### Cách 1: Dùng npx serve (Khuyến nghị)
 
 ```bash
 cd c:\code\lan\1910
-npx serve .
+npx serve -p 3000
 ```
 
 Sau đó mở trình duyệt: **http://localhost:3000**
@@ -35,7 +39,15 @@ Mở: **http://localhost:8080**
 
 ### Cách 3: Live Server (VS Code)
 
-Cài extension "Live Server" trong VS Code, click chuột phải vào `index.html` → "Open with Live Server"
+Cài extension **"Live Server"** trong VS Code, click chuột phải vào `index.html` → **"Open with Live Server"**
+
+### ❌ KHÔNG dùng
+
+```bash
+# SAI - Đừng gõ thiếu chữ "v"
+npx ser            # ← package đáng ngờ, deprecated
+npx ser --version  # ← gọi package lừa đảo
+```
 
 ## 📁 Cấu trúc Project
 
