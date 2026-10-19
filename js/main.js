@@ -1606,7 +1606,6 @@ function createPhotoFrame(index, total, photoTexture) {
   group.rotation.x = -cfg.ringTilt * Math.cos(angle);
   group.rotation.z = cfg.ringTilt * Math.sin(angle);
 
-  const fw = cfg.frameWidth, fh = cfg.frameHeight;
   const frameDepth = 0.22;
 
   // 1. Viền ngoài - vàng kim kim loại
