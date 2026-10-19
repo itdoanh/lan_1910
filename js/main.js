@@ -1494,7 +1494,10 @@ const PHOTO_CONFIG = {
   ringTilt: 0.25,       // Nghiêng vòng tròn nhẹ
   floatAmplitude: 0.5,  // Biên độ bay lơ lửng
   floatSpeed: 0.8,      // Tốc độ bay lơ lửng
-  rotateSpeed: 1.4,     // Đồng bộ với camera autoRotateSpeed (cũ 0.15)
+  // Tốc độ ảnh xoay: dùng autoRotateSpeed 1.4 (đơn vị OrbitControls)
+  // OrbitControls.autoRotateSpeed = 1.4 ≈ 30s/vòng ≈ 0.21 rad/s
+  // Ảnh sẽ xoay theo góc nhìn camera (xem updatePhotoSystem)
+  rotateSpeed: 1.4,
   minPhotos: 5,
   maxPhotos: 20,
   defaultCount: 8       // Số ảnh mặc định
@@ -1717,8 +1720,18 @@ function updatePhotoSystem(elapsed) {
 
   const cfg = PHOTO_CONFIG;
 
-  // Xoay vòng tròn ảnh quanh bánh
-  photoSystem.group.rotation.y = elapsed * cfg.rotateSpeed;
+  // Xoay vòng tròn ảnh THEO GÓC NHÌN CAMERA
+  // Lấy azimuth = góc camera xoay quanh target trên mặt phẳng XZ
+  // OrbitControls.autoRotateSpeed = 1.4 → ~0.21 rad/s
+  // Công thức OrbitControls: rotation per frame = (autoRotateSpeed * 2π) / (60 * 30) ≈ speed * 0.0035
+  // Nhưng đơn giản nhất: xoay ảnh theo góc camera hiện tại
+  const camPos = camera.position;
+  const target = controls.target;
+  const dx = camPos.x - target.x;
+  const dz = camPos.z - target.z;
+  const cameraAzimuth = Math.atan2(dx, dz);  // góc camera nhìn về target
+  // Ảnh xoay NGƯỢC chiều camera để khi camera xoay phải thì ảnh chạy theo
+  photoSystem.group.rotation.y = -cameraAzimuth;
 
   // Animate từng khung
   photoSystem.frames.forEach((frame) => {
@@ -1740,7 +1753,6 @@ function updatePhotoSystem(elapsed) {
     }
 
     // 4. Billboard: khung luôn hướng về camera
-    const camPos = camera.position;
     const framePos = frame.getWorldPosition(new THREE.Vector3());
     const dir = new THREE.Vector3().subVectors(camPos, framePos).normalize();
     const lookTarget = new THREE.Vector3(
