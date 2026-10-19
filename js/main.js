@@ -628,9 +628,10 @@ class FireworksUltimate {
 
   launchRandom() {
     const colors = [0xff4d8d, 0xffd166, 0xa786ff, 0xff9a5a, 0x4dff88, 0xff6b6b, 0x66d9ff, 0xff85a1];
-    const x = (Math.random() - 0.5) * 30;
-    const y = 4 + Math.random() * 13;
-    const z = (Math.random() - 0.5) * 14;
+    // Tản rộng - không tập trung giữa bánh
+    const x = (Math.random() - 0.5) * 60;      // ±30 (xa hơn)
+    const y = 4 + Math.random() * 18;          // 4-22 cao hơn
+    const z = (Math.random() - 0.5) * 50;      // ±25 (xa hơn)
     const color = colors[Math.floor(Math.random() * colors.length)];
     const type = this.burstTypes[Math.floor(Math.random() * this.burstTypes.length)];
     this.launchRocket(new THREE.Vector3(x, y, z), color);
@@ -1481,6 +1482,286 @@ document.getElementById('btn-back-wishes').addEventListener('click', () => {
 });
 
 /* ============================================================================
+   9.5. HỆ THỐNG ẢNH KỶ NIỆM 3D - KHUNG VÀNG KIM, BAY XUNG QUANH
+   ============================================================================ */
+
+// === CONFIG - Bán kính xa, khung to, đẹp, có animation ===
+const PHOTO_CONFIG = {
+  radius: 22,           // Bán kính xa hơn nhiều (cũ 22)
+  height: 7,            // Cao hơn (cũ 5)
+  frameWidth: 4.2,      // Khung to hơn (cũ 2.8)
+  frameHeight: 4.2,     // Khung vuông (cũ 2.8)
+  ringTilt: 0.35,       // Nghiêng vòng tròn cho sinh động
+  floatAmplitude: 0.4,  // Biên độ bay lơ lửng
+  floatSpeed: 0.8,      // Tốc độ bay lơ lửng
+  rotateSpeed: 0.15,    // Tốc độ xoay vòng (rìa ~ 0.15 rad/s)
+  minPhotos: 5,
+  maxPhotos: 20,
+  defaultCount: 8       // Số ảnh mặc định
+};
+
+const photoSystem = {
+  frames: [],
+  photos: [],
+  group: null,
+  placeholderTextures: [],
+  defaultRingAngle: 0,
+  defaultAngleOffset: 0      // Cho phép xoay vòng liên tục
+};
+
+// Group chứa tất cả khung - xa hơn cakeRoot
+photoSystem.group = new THREE.Group();
+photoSystem.group.position.y = 0;
+scene.add(photoSystem.group);
+
+// --- Tạo texture placeholder sang trọng ---
+function createPhotoPlaceholder(text, accentColor) {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 512;
+  const x2d = c.getContext('2d');
+  // Gradient nền dọc - tone ngà vàng ấm
+  const g = x2d.createLinearGradient(0, 0, 512, 512);
+  g.addColorStop(0, accentColor);
+  g.addColorStop(0.5, '#ffe6f0');
+  g.addColorStop(1, accentColor);
+  x2d.fillStyle = g;
+  x2d.fillRect(0, 0, 512, 512);
+  // Viền vàng kim bên trong
+  x2d.strokeStyle = '#d4af37';
+  x2d.lineWidth = 8;
+  x2d.strokeRect(24, 24, 464, 464);
+  // Viền trang trí nhỏ
+  x2d.strokeStyle = '#ffffff80';
+  x2d.lineWidth = 2;
+  x2d.strokeRect(40, 40, 432, 432);
+  // Text/emoji
+  x2d.fillStyle = '#ffffff';
+  x2d.font = 'bold 90px "Dancing Script", cursive, sans-serif';
+  x2d.textAlign = 'center';
+  x2d.textBaseline = 'middle';
+  x2d.shadowColor = 'rgba(0,0,0,0.4)';
+  x2d.shadowBlur = 12;
+  x2d.shadowOffsetY = 4;
+  x2d.fillText(text, 256, 256);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// --- Cache placeholder textures ---
+function getPlaceholderTextures() {
+  if (photoSystem.placeholderTextures.length) return photoSystem.placeholderTextures;
+  const captions = ['💖 Ngày 1', '🌸 Hè về', '✨ Kỷ niệm', '🎀 Bên nhau',
+                    '🦋 Bay cao', '🌟 Ước mơ', '💕 Mãi mãi', '🌷 Tươi đẹp',
+                    '💗 Yêu thương', '🌺 Rạch nắng', '☀️ Ngày đẹp', '🎂 Sinh nhật',
+                    '🎉 Happy', '🌈 Cầu vồng', '🍀 May mắn', '🦄 Độc đáo',
+                    '🌙 Đêm', '⭐ Ngôi sao', '🎶 Âm nhạc', '📸 Khoảnh khắc'];
+  const accents = ['#ff85b3', '#e84a8a', '#ff6b9d', '#ff9ec7', '#f7a8c4',
+                   '#d4af37', '#ffd700', '#ffaa66', '#ff7f50', '#ff6347'];
+  for (let i = 0; i < PHOTO_CONFIG.maxPhotos; i++) {
+    photoSystem.placeholderTextures.push(
+      createPhotoPlaceholder(captions[i] || `Kỷ niệm ${i+1}`, accents[i % accents.length])
+    );
+  }
+  return photoSystem.placeholderTextures;
+}
+
+// --- Tạo 1 khung ảnh 3D với hiệu ứng động ---
+function createPhotoFrame(index, total, photoTexture) {
+  const cfg = PHOTO_CONFIG;
+  const group = new THREE.Group();
+  const angle = (index / total) * Math.PI * 2;
+  const x = Math.cos(angle) * cfg.radius;
+  const z = Math.sin(angle) * cfg.radius;
+  group.position.set(x, cfg.height, z);
+
+  // Mặt khung hướng về tâm
+  group.lookAt(0, cfg.height, 0);
+  group.rotation.y += Math.PI;
+
+  // Nghiêng khung cho sinh điên (chỉ nghiêng X và Z nhẹ)
+  group.rotation.x = -cfg.ringTilt * Math.cos(angle);
+  group.rotation.z = cfg.ringTilt * Math.sin(angle);
+
+  const fw = cfg.frameWidth, fh = cfg.frameHeight;
+  const frameDepth = 0.22;
+
+  // 1. Viền ngoài - vàng kim kim loại
+  const frameMat = new THREE.MeshStandardMaterial({
+    color: 0xffd700, metalness: 0.95, roughness: 0.18,
+    emissive: 0xff8c00, emissiveIntensity: 0.15
+  });
+  // Thanh viền (4 cạnh)
+  const top = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.32, 0.28, frameDepth), frameMat);
+  top.position.y = fh/2 + 0.10;
+  group.add(top);
+  const bottom = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.32, 0.28, frameDepth), frameMat);
+  bottom.position.y = -fh/2 - 0.10;
+  group.add(bottom);
+  const left = new THREE.Mesh(new THREE.BoxGeometry(0.28, fh + 0.6, frameDepth), frameMat);
+  left.position.x = -fw/2 - 0.10;
+  group.add(left);
+  const right = new THREE.Mesh(new THREE.BoxGeometry(0.28, fh + 0.6, frameDepth), frameMat);
+  right.position.x = fw/2 + 0.10;
+  group.add(right);
+
+  // 2. Background đen sang trọng
+  const bgMat = new THREE.MeshStandardMaterial({
+    color: 0x0a0a0a, roughness: 0.5, metalness: 0.1
+  });
+  const bg = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), bgMat);
+  bg.position.z = -0.06;
+  group.add(bg);
+
+  // 3. Mặt ảnh - emissive nhẹ cho sáng
+  const photoMat = new THREE.MeshStandardMaterial({
+    map: photoTexture, roughness: 0.4, metalness: 0.0,
+    emissive: 0xffffff, emissiveMap: photoTexture, emissiveIntensity: 0.08
+  });
+  const photo = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), photoMat);
+  photo.position.z = 0.0;
+  group.add(photo);
+
+  // 4. Mặt kính trong suốt - có phản chiếu
+  const glassMat = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, transparent: true, opacity: 0.12,
+    roughness: 0.05, metalness: 0.0, transmission: 0.5, ior: 1.5,
+    clearcoat: 1.0, clearcoatRoughness: 0.0, thickness: 0.1
+  });
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), glassMat);
+  glass.position.z = 0.08;
+  group.add(glass);
+
+  // 5. 4 góc kim cương nhỏ - vàng kim lấp lánh
+  const cornerMat = new THREE.MeshStandardMaterial({
+    color: 0xffec80, metalness: 1.0, roughness: 0.1,
+    emissive: 0xffd700, emissiveIntensity: 0.5
+  });
+  const cornerSize = 0.18;
+  [
+    { x: fw/2 + 0.12, y: fh/2 + 0.12 },
+    { x: -fw/2 - 0.12, y: fh/2 + 0.12 },
+    { x: fw/2 + 0.12, y: -fh/2 - 0.12 },
+    { x: -fw/2 - 0.12, y: -fh/2 - 0.12 }
+  ].forEach(c => {
+    const corner = new THREE.Mesh(
+      new THREE.OctahedronGeometry(cornerSize, 0), cornerMat
+    );
+    corner.position.set(c.x, c.y, frameDepth/2);
+    corner.userData.spin = Math.random() * Math.PI * 2;
+    corner.userData.spinSpeed = 0.5 + Math.random() * 0.5;
+    group.add(corner);
+  });
+
+  // 6. Đèn LED chiếu ảnh (ánh sáng vàng ấm)
+  const led = new THREE.PointLight(0xffd166, 1.2, 6, 2);
+  led.position.z = 2.0;
+  led.position.y = 0.5;
+  group.add(led);
+
+  // 7. Đèn LED nhỏ ở 4 góc (trang trí)
+  [
+    [fw/2, fh/2], [-fw/2, fh/2], [fw/2, -fh/2], [-fw/2, -fh/2]
+  ].forEach(p => {
+    const spot = new THREE.PointLight(0xfff0c0, 0.3, 2, 2);
+    spot.position.set(p[0], p[1], frameDepth + 0.1);
+    group.add(spot);
+  });
+
+  // === ANIMATION STATE ===
+  // Lưu thông tin để update trong animate()
+  group.userData = {
+    index, angle, photo, glass, photoMat,
+    basePosY: cfg.height,
+    floatPhase: index * 0.7,           // Pha riêng cho mỗi khung
+    floatSpeed: 0.5 + Math.random() * 0.4,
+    floatAmplitude: 0.3 + Math.random() * 0.3,
+    swayPhase: index * 1.3,
+    swayAmplitude: 0.04,
+    led, ledPulsePhase: index,
+    cornerSpinPhase: []
+  };
+
+  // Lưu phase cho 4 góc để xoay độc lập
+  group.children.forEach(child => {
+    if (child.userData && child.userData.spin !== undefined) {
+      group.userData.cornerSpinPhase.push({
+        spin: child.userData.spin,
+        spinSpeed: child.userData.spinSpeed
+      });
+    }
+  });
+
+  return group;
+}
+
+// --- Sắp xếp ảnh theo vòng tròn ---
+function layoutPhotos() {
+  // Xóa khung cũ
+  photoSystem.frames.forEach(f => photoSystem.group.remove(f));
+  photoSystem.frames = [];
+
+  const total = photoSystem.photos.length;
+  if (total < PHOTO_CONFIG.minPhotos || total > PHOTO_CONFIG.maxPhotos) return;
+
+  for (let i = 0; i < total; i++) {
+    const frame = createPhotoFrame(i, total, photoSystem.photos[i]);
+    photoSystem.frames.push(frame);
+    photoSystem.group.add(frame);
+  }
+}
+
+// --- Update animation cho photos mỗi frame ---
+function updatePhotoSystem(elapsed) {
+  if (photoSystem.frames.length === 0) return;
+
+  const cfg = PHOTO_CONFIG;
+
+  // Xoay vòng tròn ảnh quanh bánh
+  photoSystem.group.rotation.y = elapsed * cfg.rotateSpeed;
+
+  // Animate từng khung
+  photoSystem.frames.forEach((frame) => {
+    const u = frame.userData;
+
+    // 1. Bay lơ lửng (lên xuống nhẹ)
+    const floatY = Math.sin(elapsed * u.floatSpeed + u.floatPhase) * u.floatAmplitude;
+    frame.position.y = u.basePosY + floatY;
+
+    // 2. Lắc lư (sway) nhẹ quanh góc nghiêng
+    const swayX = Math.sin(elapsed * 0.6 + u.swayPhase) * u.swayAmplitude;
+    const swayZ = Math.cos(elapsed * 0.5 + u.swayPhase) * u.swayAmplitude;
+    frame.rotation.x = -cfg.ringTilt * Math.cos(u.angle) + swayX;
+    frame.rotation.z = cfg.ringTilt * Math.sin(u.angle) + swayZ;
+
+    // 3. LED nhấp nháy
+    if (u.led) {
+      u.led.intensity = 0.8 + 0.6 * Math.sin(elapsed * 2.5 + u.ledPulsePhase);
+    }
+
+    // 4. Billboard: khung luôn hướng về camera
+    const camPos = camera.position;
+    const framePos = frame.getWorldPosition(new THREE.Vector3());
+    const dir = new THREE.Vector3().subVectors(camPos, framePos).normalize();
+    const lookTarget = new THREE.Vector3(
+      framePos.x + dir.x,
+      framePos.y,
+      framePos.z + dir.z
+    );
+    frame.lookAt(lookTarget);
+  });
+}
+
+// === Tạo ảnh mặc định ngay khi load ===
+function initDefaultPhotos() {
+  const placeholders = getPlaceholderTextures();
+  photoSystem.photos = placeholders.slice(0, PHOTO_CONFIG.defaultCount);
+  layoutPhotos();
+}
+
+initDefaultPhotos();
+
+/* ============================================================================
    10. ANIMATION LOOP
    ============================================================================ */
 const clock = new THREE.Clock();
@@ -1509,6 +1790,7 @@ function animate() {
   
   sparkleSystem.update(elapsed);
   fireworks3D.update();
+  updatePhotoSystem(elapsed);
 
   controls.update();
   composer.render();
