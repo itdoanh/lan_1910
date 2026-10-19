@@ -864,13 +864,10 @@ scene.background = new THREE.Color(0x05020a);
 scene.fog = new THREE.FogExp2(0x090414, 0.018);
 
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
-// Góc nhìn rộng nhất - FOV 65, xa 22 đơn vị, cao 12.7 để có 30° từ trên xuống
-// angle = atan2(12.7 - 2.5, 22) = atan2(10.2, 22) ≈ 24.85° (từ mặt phẳng ngang)
-// Tính lại: muốn 30° từ trên xuống nghĩa là góc giữa camera-target và mặt ngang = 30°
-// height_diff / distance = tan(30°) = 0.577
-// distance = 22, height_diff = 22 × 0.577 = 12.7
-// target.y = 2.5, camera.y = 2.5 + 12.7 = 15.2
-camera.position.set(0, 15.2, 22);
+// Góc nhìn rộng nhất - bao quát cả bánh và ảnh xung quanh (radius 12)
+// Khoảng cách 28 đơn vị, FOV 65 - thấy cả bánh ở giữa và ảnh đối diện
+// height_diff = 28 × tan(30°) = 16.2, camera.y = 2.5 + 16.2 = 18.7
+camera.position.set(0, 18.7, 28);
 camera.lookAt(0, 2.5, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -896,8 +893,8 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.maxPolarAngle = Math.PI / 2 + 0.05; // Giới hạn ~90° + 3°
-controls.minDistance = 8;
-controls.maxDistance = 30;
+controls.minDistance = 10;
+controls.maxDistance = 38;
 controls.target.set(0, 2.5, 0);
 // Tự động xoay quanh bánh - tốc độ nhẹ nhàng
 controls.autoRotate = true;
@@ -1510,6 +1507,23 @@ function animate() {
   sparkleSystem.update(elapsed);
   fireworks3D.update();
 
+  // Billboard: ảnh luôn hướng về phía camera
+  if (photoSystem.group.visible && photoSystem.frames.length > 0) {
+    const camPos = camera.position.clone();
+    photoSystem.frames.forEach(frame => {
+      // Tính hướng từ khung tới camera
+      const framePos = frame.getWorldPosition(new THREE.Vector3());
+      const dir = new THREE.Vector3().subVectors(camPos, framePos).normalize();
+      // LookAt camera, giữ trục Y thẳng đứng
+      const lookTarget = new THREE.Vector3(
+        framePos.x + dir.x,
+        framePos.y,
+        framePos.z + dir.z
+      );
+      frame.lookAt(lookTarget);
+    });
+  }
+
   controls.update();
   composer.render();
 }
@@ -1548,3 +1562,252 @@ document.addEventListener('visibilitychange', () => {
     }
   }
 });
+
+/* ============================================================================
+   12. HỆ THỐNG ẢNH KỶ NIỆM - KHUNG TRANH 3D XUNG QUANH BÁNH
+   ============================================================================ */
+
+// State quản lý ảnh
+const photoSystem = {
+  frames: [],          // Mảng các group khung ảnh
+  photos: [],          // Mảng URL ảnh đã tải
+  radius: 12,          // Bán kính vòng tròn
+  height: 5,           // Độ cao tâm khung
+  frameWidth: 2.8,
+  frameHeight: 2.8,
+  visible: true,
+  group: null
+};
+
+// Tạo group chứa tất cả khung
+photoSystem.group = new THREE.Group();
+scene.add(photoSystem.group);
+
+// Tạo texture placeholder cho ảnh mặc định
+function createPlaceholderTexture(text, bgColor) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512; canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  // Gradient nền
+  const grad = ctx.createLinearGradient(0, 0, 512, 512);
+  grad.addColorStop(0, bgColor);
+  grad.addColorStop(1, '#ffffff20');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 512, 512);
+  // Text
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 60px "Dancing Script", cursive';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 256, 256);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// Tạo 1 khung ảnh 3D - với viền vàng, mặt kính
+function createPhotoFrame(index, total, photoTexture) {
+  const group = new THREE.Group();
+  // Góc xung quanh trục Y
+  const angle = (index / total) * Math.PI * 2;
+  const x = Math.cos(angle) * photoSystem.radius;
+  const z = Math.sin(angle) * photoSystem.radius;
+  group.position.set(x, photoSystem.height, z);
+  // Xoay mặt khung hướng về phía tâm bánh
+  group.lookAt(0, photoSystem.height, 0);
+  // Xoay thêm 180° vì lookAt hướng -Z nhưng ta muốn +Z (mặt trước)
+  group.rotation.y += Math.PI;
+  
+  // Kích thước khung
+  const fw = photoSystem.frameWidth;
+  const fh = photoSystem.frameHeight;
+  
+  // 1. Viền ngoài - vàng kim
+  const frameMat = new THREE.MeshStandardMaterial({
+    color: 0xffd700, metalness: 0.8, roughness: 0.25, emissive: 0x553300, emissiveIntensity: 0.1
+  });
+  const frameDepth = 0.15;
+  // 4 thanh viền
+  const top = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.2, 0.2, frameDepth), frameMat);
+  top.position.y = fh/2 + 0.05;
+  group.add(top);
+  const bottom = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.2, 0.2, frameDepth), frameMat);
+  bottom.position.y = -fh/2 - 0.05;
+  group.add(bottom);
+  const left = new THREE.Mesh(new THREE.BoxGeometry(0.2, fh + 0.4, frameDepth), frameMat);
+  left.position.x = -fw/2 - 0.05;
+  group.add(left);
+  const right = new THREE.Mesh(new THREE.BoxGeometry(0.2, fh + 0.4, frameDepth), frameMat);
+  right.position.x = fw/2 + 0.05;
+  group.add(right);
+  
+  // 2. Background đen sau ảnh
+  const bgMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+  const bg = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), bgMat);
+  bg.position.z = -0.04;
+  group.add(bg);
+  
+  // 3. Mặt ảnh
+  const photoMat = new THREE.MeshStandardMaterial({
+    map: photoTexture, roughness: 0.6, metalness: 0.0, side: THREE.FrontSide
+  });
+  const photo = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), photoMat);
+  photo.position.z = 0.0;
+  group.add(photo);
+  
+  // 4. Mặt kính phía trước (trong suốt, có reflection)
+  const glassMat = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, transparent: true, opacity: 0.15, 
+    roughness: 0.05, metalness: 0.0, transmission: 0.3, ior: 1.5,
+    clearcoat: 1.0, clearcoatRoughness: 0.0
+  });
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), glassMat);
+  glass.position.z = 0.05;
+  group.add(glass);
+  
+  // 5. Viền trang trí - góc bo tròn
+  const cornerMat = new THREE.MeshStandardMaterial({
+    color: 0xffe066, metalness: 0.9, roughness: 0.2
+  });
+  // 4 góc nhỏ
+  const cs = 0.25;
+  const ct = 0.05;
+  const corners = [
+    { x: fw/2 + 0.05, y: fh/2 + 0.05 },
+    { x: -fw/2 - 0.05, y: fh/2 + 0.05 },
+    { x: fw/2 + 0.05, y: -fh/2 - 0.05 },
+    { x: -fw/2 - 0.05, y: -fh/2 - 0.05 }
+  ];
+  corners.forEach(c => {
+    const corner = new THREE.Mesh(new THREE.SphereGeometry(cs * 0.6, 12, 12), cornerMat);
+    corner.position.set(c.x, c.y, frameDepth/2);
+    group.add(corner);
+  });
+  
+  // 6. Đèn LED nhỏ chiếu ảnh
+  const led = new THREE.PointLight(0xffd166, 0.6, 4);
+  led.position.z = 1.5;
+  group.add(led);
+  
+  // Lưu thông tin để cập nhật sau
+  group.userData = { index, photo, photoMat, angle, photoTexture };
+  return group;
+}
+
+// Sắp xếp ảnh theo vòng tròn
+function layoutPhotos() {
+  // Xóa khung cũ
+  photoSystem.frames.forEach(f => photoSystem.group.remove(f));
+  photoSystem.frames = [];
+  
+  const total = photoSystem.photos.length;
+  if (total < 5 || total > 20) return;
+  
+  for (let i = 0; i < total; i++) {
+    const frame = createPhotoFrame(i, total, photoSystem.photos[i]);
+    photoSystem.frames.push(frame);
+    photoSystem.group.add(frame);
+  }
+}
+
+// Toggle hiển thị
+function setPhotosVisible(visible) {
+  photoSystem.visible = visible;
+  photoSystem.group.visible = visible;
+}
+
+// ==== UPLOAD & XỬ LÝ ẢNH ====
+const photoUpload = document.getElementById('photo-upload');
+const btnTogglePhotos = document.getElementById('btn-toggle-photos');
+let photosActive = true;
+
+photoUpload.addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files);
+  if (files.length < 5) {
+    alert('Cần tối thiểu 5 ảnh! Vui lòng chọn từ 5-20 ảnh.');
+    return;
+  }
+  if (files.length > 20) {
+    alert('Tối đa 20 ảnh! Bạn đã chọn ' + files.length + ' ảnh, sẽ lấy 20 ảnh đầu tiên.');
+  }
+  
+  // Giới hạn 20 ảnh
+  const limitedFiles = files.slice(0, 20);
+  const textures = [];
+  
+  // Màu nền đa dạng nếu là ảnh mặc định
+  const bgColors = ['#ff85b3', '#87ceeb', '#90ee90', '#ffd166', '#dda0dd', '#ff6b6b', '#ffa06b'];
+  
+  for (let i = 0; i < limitedFiles.length; i++) {
+    const file = limitedFiles[i];
+    try {
+      const url = await readFileAsDataURL(file);
+      const tex = await loadImageTexture(url);
+      textures.push(tex);
+    } catch (err) {
+      // Fallback placeholder
+      const placeholder = createPlaceholderTexture('💖 ' + (i+1), bgColors[i % bgColors.length]);
+      textures.push(placeholder);
+    }
+  }
+  
+  // Pad với placeholder nếu < 20
+  while (textures.length < 5) {
+    const placeholder = createPlaceholderTexture('💖 ' + (textures.length+1), bgColors[textures.length % bgColors.length]);
+    textures.push(placeholder);
+  }
+  
+  photoSystem.photos = textures;
+  layoutPhotos();
+  setPhotosVisible(true);
+  photosActive = true;
+  btnTogglePhotos.textContent = '🖼️ Ẩn Ảnh Kỷ Niệm';
+});
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImageTexture(url) {
+  return new Promise((resolve, reject) => {
+    new THREE.ImageLoader().load(
+      url,
+      (img) => {
+        const tex = new THREE.Texture(img);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.needsUpdate = true;
+        resolve(tex);
+      },
+      undefined,
+      reject
+    );
+  });
+}
+
+btnTogglePhotos.addEventListener('click', () => {
+  if (photoSystem.photos.length < 5) {
+    alert('Vui lòng thêm ảnh trước (5-20 ảnh)!');
+    return;
+  }
+  photosActive = !photosActive;
+  setPhotosVisible(photosActive);
+  btnTogglePhotos.textContent = photosActive ? '🖼️ Ẩn Ảnh Kỷ Niệm' : '🖼️ Hiện Ảnh Kỷ Niệm';
+});
+
+// Tạo 8 placeholder mặc định ngay từ đầu
+function initDefaultPhotos() {
+  const captions = ['💖', '🌸', '✨', '🎀', '🦋', '🌟', '💕', '🌷'];
+  const bgColors = ['#ff85b3', '#87ceeb', '#90ee90', '#ffd166', '#dda0dd', '#ff6b6b', '#ffa06b', '#a0d8ef'];
+  for (let i = 0; i < 8; i++) {
+    const tex = createPlaceholderTexture(captions[i], bgColors[i]);
+    photoSystem.photos.push(tex);
+  }
+  layoutPhotos();
+}
+
+initDefaultPhotos();

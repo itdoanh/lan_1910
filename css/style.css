@@ -436,6 +436,16 @@ html, body {
   gap: 8px;
 }
 
+/* Label giả nút upload */
+label.hud-btn {
+  user-select: none;
+}
+label.hud-btn:hover {
+  background: rgba(255, 77, 141, 0.3);
+  border-color: var(--gold-primary);
+  transform: translateY(-2px);
+}
+
 .hud-btn:hover {
   background: rgba(255, 77, 141, 0.3);
   border-color: var(--gold-primary);
