@@ -1570,32 +1570,50 @@ scene.add(photoSystem.group);
 // --- Tạo texture placeholder sang trọng ---
 function createPhotoPlaceholder(text, accentColor) {
   const c = document.createElement('canvas');
-  c.width = 512; c.height = 512;
+  c.width = 768; c.height = 768;
   const x2d = c.getContext('2d');
   // Gradient nền dọc - tone ngà vàng ấm
-  const g = x2d.createLinearGradient(0, 0, 512, 512);
+  const g = x2d.createLinearGradient(0, 0, 768, 768);
   g.addColorStop(0, accentColor);
   g.addColorStop(0.5, '#ffe6f0');
   g.addColorStop(1, accentColor);
   x2d.fillStyle = g;
-  x2d.fillRect(0, 0, 512, 512);
+  x2d.fillRect(0, 0, 768, 768);
   // Viền vàng kim bên trong
   x2d.strokeStyle = '#d4af37';
-  x2d.lineWidth = 8;
-  x2d.strokeRect(24, 24, 464, 464);
+  x2d.lineWidth = 12;
+  x2d.strokeRect(36, 36, 696, 696);
   // Viền trang trí nhỏ
   x2d.strokeStyle = '#ffffff80';
-  x2d.lineWidth = 2;
-  x2d.strokeRect(40, 40, 432, 432);
-  // Text/emoji
+  x2d.lineWidth = 3;
+  x2d.strokeRect(60, 60, 648, 648);
+  // Text/emoji - auto-fit font size để không bị cắt chữ
   x2d.fillStyle = '#ffffff';
-  x2d.font = 'bold 90px "Dancing Script", cursive, sans-serif';
   x2d.textAlign = 'center';
   x2d.textBaseline = 'middle';
   x2d.shadowColor = 'rgba(0,0,0,0.4)';
   x2d.shadowBlur = 12;
   x2d.shadowOffsetY = 4;
-  x2d.fillText(text, 256, 256);
+
+  // Đo chiều dài text và scale font xuống nếu vượt khung
+  const maxWidth = 560; // trừ hao viền 36+36+60+60 + margin
+  let fontSize = 130;
+  x2d.font = `bold ${fontSize}px "Dancing Script", "Segoe UI Emoji", cursive, sans-serif`;
+  let metrics = x2d.measureText(text);
+  // Lặp giảm font size cho đến khi vừa
+  while (metrics.width > maxWidth && fontSize > 36) {
+    fontSize -= 5;
+    x2d.font = `bold ${fontSize}px "Dancing Script", "Segoe UI Emoji", cursive, sans-serif`;
+    metrics = x2d.measureText(text);
+  }
+  // Tăng font size cho text ngắn (< 6 ký tự) để đẹp hơn
+  while (metrics.width < maxWidth * 0.45 && fontSize < 180) {
+    fontSize += 5;
+    x2d.font = `bold ${fontSize}px "Dancing Script", "Segoe UI Emoji", cursive, sans-serif`;
+    metrics = x2d.measureText(text);
+  }
+
+  x2d.fillText(text, 384, 384);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
@@ -1604,11 +1622,11 @@ function createPhotoPlaceholder(text, accentColor) {
 // --- Cache placeholder textures ---
 function getPlaceholderTextures() {
   if (photoSystem.placeholderTextures.length) return photoSystem.placeholderTextures;
-  const captions = ['🌸 Tuổi 20', '✨ Thanh xuân', '🎀 Kỷ niệm', '💫 Mơ ước',
-                    '🦋 Bay cao', '🌷 Dịu dàng', '🎂 Sinh nhật Lan', '🌟 Hạnh phúc',
-                    '🌺 Ngày đẹp', '💖 Yêu thương', '🌙 Bình yên', '🎉 Chúc mừng',
-                    '🌈 May mắn', '⭐ Tỏa sáng', '🍀 Bình an', '🦄 Độc đáo',
-                    '📸 Khoảnh khắc', '🎶 Ngọt ngào', '☀️ Rạng rỡ', '🌹 Tươi đẹp'];
+  const captions = ['Tuổi 20', 'Thanh xuân', 'Kỷ niệm', 'Mơ ước',
+                    'Bay cao', 'Dịu dàng', 'Sinh nhật', 'Hạnh phúc',
+                    'Ngày đẹp', 'Yêu thương', 'Bình yên', 'Chúc mừng',
+                    'May mắn', 'Tỏa sáng', 'Bình an', 'Độc đáo',
+                    'Khoảnh khắc', 'Ngọt ngào', 'Rạng rỡ', 'Tươi đẹp'];
   const accents = ['#ff85b3', '#e84a8a', '#ff6b9d', '#ff9ec7', '#f7a8c4',
                    '#d4af37', '#ffd700', '#ffaa66', '#ff7f50', '#ff6347'];
   for (let i = 0; i < PHOTO_CONFIG.maxPhotos; i++) {
