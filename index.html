@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy 20th Birthday Nguyễn Lan | 19/11/2006 - 19/11/2026</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Montserrat:wght@300;400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+  <!-- Favicon inline để tránh lỗi 404 -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎂</text></svg>">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Canvas hạt ánh sáng nền lung linh cho Giai đoạn 1 & 2 -->
+  <canvas id="ambient-canvas"></canvas>
+
+  <!-- Không gian 3D WebGL 2.0 + Custom GLSL Shaders + HDR Bloom -->
+  <div id="webgl-container"></div>
+
+  <!-- ========================================================================  
+       GIAI ĐOẠN 1: HIỆN NGÀY 19/11/2026 CHÍNH GIỮA TRANG (TỰ CHUYỂN SAU 3 GIÂY)  
+       ======================================================================== -->
+  <section id="stage-1" class="stage-screen">
+    <div class="splash-aura"></div>
+    <div class="splash-badge">✨ Special Milestone Celebration ✨</div>
+    <h1 class="splash-date">19 / 11 / 2026</h1>
+    <p class="splash-subtitle">HAPPY 20TH BIRTHDAY <strong>NGUYỄN LAN</strong> (19/11/2006)</p>
+    <div class="splash-progress-bar">
+      <div class="splash-progress-fill"></div>
+    </div>
+  </section>
+
+  <!-- ========================================================================  
+       GIAI ĐOẠN 2: TRANG LỜI CHÚC SINH NHẬT TUỔI 20 ĐẸP & LUNG LINH  
+       ======================================================================== -->
+  <section id="stage-2" class="stage-screen stage-hidden">
+    <div class="wish-card">
+      <div class="milestone-pill">🌸 Kỷ Niệm Tuổi 20 Rực Rỡ • 19.11.2006 – 19.11.2026 🌸</div>
+      <h2 class="wish-title">Chúc Mừng Sinh Nhật Nguyễn Lan</h2>
+
+      <!-- Dải chữ nhảy theo nốt nhạc Web Audio API -->
+      <div id="musical-ribbon" class="musical-notes-ribbon" title="Nhấn để nghe lại giai điệu Happy Birthday"></div>
+
+      <div class="wish-body">
+        <p>
+          Chào tuổi 20 tuyệt đẹp của <span class="highlight-name">Nguyễn Lan</span>! Hôm nay, ngày <strong>19/11/2026</strong>, đánh dấu tròn hai thập kỷ kể từ ngày một cô gái tuyệt vời bước đến thế giới này (<strong>19/11/2006</strong>).
+        </p>
+        <p>
+          Trong suốt 20 năm qua, từng khoảnh khắc đã tạo nên hành trình tuyệt vời của Lan. Hôm nay là ngày đặc biệt nhất — ngày kỷ niệm một cột mốc quan trọng: <strong>20 năm rực rỡ</strong>.
+        </p>
+        <p>
+          Chúc Lan ở ngưỡng cửa tuổi 20 luôn giữ trọn nụ cười rạng rỡ như ánh nắng ban mai, trái tim ấm áp, tâm hồn tự do và đôi chân vững vàng trên mọi hành trình phía trước. Mong rằng mỗi ngày trôi qua của Lan đều ngập tràn niềm vui, may mắn, được yêu thương trọn vẹn và mọi ước mơ ấp ủ đều nở hoa rực rỡ nhất.
+        </p>
+        <p>
+          Hãy luôn tỏa sáng theo cách riêng độc nhất của mình nhé. Tuổi 20 này chính là bầu trời rực rỡ nhất dành riêng cho <span class="highlight-name">Nguyễn Lan</span>!
+        </p>
+        <div class="wish-signature">— Gửi ngàn lời chúc tốt đẹp nhất đến Lan 💖 —</div>
+      </div>
+
+      <div class="wish-actions">
+        <button id="btn-replay-music" class="btn-secondary-glass">🎵 Phát Giai Điệu Sinh Nhật</button>
+        <button id="btn-to-stage-3" class="btn-luxury">
+          <span>Tiếp Theo • Khám Phá Bánh Sinh Nhật 3D</span>
+          <span>🎂➔</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================  
+       GIAI ĐOẠN 3: GIAO DIỆN TƯƠNG TÁC KHÔNG GIAN BÁNH SINH NHẬT 3D  
+       ======================================================================== -->
+  <section id="stage-3-ui" class="stage-screen stage-hidden">
+    <div class="hud-top">
+      <h2 id="cake-title">🎂 Strawberry Dream • Sweet 20th Birthday 🎂</h2>
+      <p>Kéo chuột / Vuốt tay để xoay 360° • Cuộn để phóng to</p>
+    </div>
+
+    <div class="hud-bottom">
+      <button id="btn-blow-candles" class="hud-btn primary-action">🌬️ Thổi Nến Ước Nguyện</button>
+      <button id="btn-relight-candles" class="hud-btn" style="display: none;">🔥 Thắp Lại Nến</button>
+      <button id="btn-preset-theme" class="hud-btn">🎂 Đổi Loại Bánh</button>
+      <button id="btn-back-wishes" class="hud-btn">💌 Xem Lại Lời Chúc</button>
+    </div>
+  </section>
+
+  <!-- Import Map cho Three.js (PHẢI đặt trước script module) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <!-- Main Script -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
