@@ -1,6 +1,6 @@
-﻿/**
- * Káº¾ HOáº CH WEB SINH NHáº¬T - MAIN.JS v6
- * 12 loáº¡i phÃ¡o hoa + bÃ¡nh Ä‘áº¹p + 20 náº¿n
+/**
+ * KẾ HOẠCH WEB SINH NHẬT - MAIN.JS v6
+ * 12 loại pháo hoa + bánh đẹp + 20 nến
  */
 
 import * as THREE from 'three';
@@ -11,7 +11,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /* ============================================================================
-   1. Háº T Ná»€N 2D LUNG LINH
+   1. HẠT NỀN 2D LUNG LINH
    ============================================================================ */
 const ambientCanvas = document.getElementById('ambient-canvas');
 const ctx2d = ambientCanvas.getContext('2d');
@@ -66,7 +66,7 @@ function renderAmbientParticles() {
 renderAmbientParticles();
 
 /* ============================================================================
-   2. TEXTURE GLOW CHáº¤T LÆ¯á»¢NG CAO
+   2. TEXTURE GLOW CHẤT LƯỢNG CAO
    ============================================================================ */
 function createGlowTexture(size = 128) {
   const canvas = document.createElement('canvas');
@@ -163,7 +163,7 @@ class SparkleSystem {
 }
 
 /* ============================================================================
-   4. Há»† THá»NG PHÃO HOA 12 LOáº I
+   4. HỆ THỐNG PHÁO HOA 12 LOẠI
    ============================================================================ */
 class FireworksUltimate {
   constructor(scene) {
@@ -171,15 +171,15 @@ class FireworksUltimate {
     this.activeFireworks = [];
     this.rockets = [];
     this.burstTypes = [
-      // Cáº§u Ä‘á»u
+      // Cầu đều
       'peony', 'chrysanthemum',
-      // RÆ¡i
+      // Rơi
       'willow', 'waterfall',
-      // VÃ²ng
+      // Vòng
       'ring', 'heart', 'spiral',
       // Directional
       'fanning', 'crossette',
-      // Äáº·c biá»‡t
+      // Đặc biệt
       'crackle', 'strobe', 'brocade'
     ];
   }
@@ -255,7 +255,7 @@ class FireworksUltimate {
     this.createTrail(r);
   }
 
-  // PEONY - Ná»• cáº§u Ä‘á»u
+  // PEONY - Nổ cầu đều
   createPeony(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -283,7 +283,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'peony', particles, gravity: 0.035 });
   }
 
-  // CHRYSANTHEMUM - Trail dÃ i
+  // CHRYSANTHEMUM - Trail dài
   createChrysanthemum(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -322,7 +322,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'chrysanthemum', particles, gravity: 0.04 });
   }
 
-  // WILLOW - RÆ¡i cháº­m
+  // WILLOW - Rơi chậm
   createWillow(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -349,7 +349,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'willow', particles, gravity: 0.015 });
   }
 
-  // RING - Bay vÃ²ng trÃ²n
+  // RING - Bay vòng tròn
   createRing(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -376,7 +376,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'ring', particles, gravity: 0.025 });
   }
 
-  // CRACKLE - Láº¥p lÃ¡nh ngáº«u nhiÃªn
+  // CRACKLE - Lấp lánh ngẫu nhiên
   createCrackle(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -408,7 +408,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'crackle', particles, gravity: 0.05 });
   }
 
-  // HEART - HÃ¬nh trÃ¡i tim
+  // HEART - Hình trái tim
   createHeart(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -439,7 +439,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'heart', particles, gravity: 0.03 });
   }
 
-  // BROCADE - VÃ ng rÆ¡i
+  // BROCADE - Vàng rơi
   createBrocade(position, color) {
     this.createFlash(position, color);
     const goldColors = [0xffd700, 0xffa500, 0xff8c00, 0xffc125];
@@ -468,7 +468,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'brocade', particles, gravity: 0.045 });
   }
 
-  // WATERFALL - RÆ¡i xuá»‘ng nhÆ° thÃ¡c nÆ°á»›c
+  // WATERFALL - Rơi xuống như thác nước
   createWaterfall(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -495,13 +495,13 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'waterfall', particles, gravity: 0.02 });
   }
 
-  // FANNING - Quáº¡t ná»­a vÃ²ng trÃ²n (directional)
+  // FANNING - Quạt nửa vòng tròn (directional)
   createFanning(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
     const particles = [];
-    const fanAngle = Math.random() * Math.PI * 2; // HÆ°á»›ng quáº¡t ngáº«u nhiÃªn
-    const spread = Math.PI * 0.8; // Ná»­a vÃ²ng trÃ²n
+    const fanAngle = Math.random() * Math.PI * 2; // Hướng quạt ngẫu nhiên
+    const spread = Math.PI * 0.8; // Nửa vòng tròn
     for (let i = 0; i < 60; i++) {
       const mat = new THREE.SpriteMaterial({
         map: STAR_TEX, color: colorObj, transparent: true, opacity: 1.0,
@@ -516,7 +516,7 @@ class FireworksUltimate {
       particles.push({
         sprite,
         vx: Math.cos(theta) * speed,
-        vy: Math.sin(theta) * speed * 0.3, // Bay cao nháº¹
+        vy: Math.sin(theta) * speed * 0.3, // Bay cao nhẹ
         vz: Math.random() * 2,
         life: 1.0, decay: 0.007, type: 'fanning'
       });
@@ -524,12 +524,12 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'fanning', particles, gravity: 0.025 });
   }
 
-  // CROSSSETTE - TÃ¡ch Ä‘Ã´i thÃ nh 4 hÆ°á»›ng
+  // CROSSSETTE - Tách đôi thành 4 hướng
   createCrossette(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
     const particles = [];
-    const directions = [0, Math.PI/2, Math.PI, Math.PI * 1.5]; // 4 hÆ°á»›ng vuÃ´ng gÃ³c
+    const directions = [0, Math.PI/2, Math.PI, Math.PI * 1.5]; // 4 hướng vuông góc
     for (let dir of directions) {
       for (let i = 0; i < 30; i++) {
         const mat = new THREE.SpriteMaterial({
@@ -554,7 +554,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'crossette', particles, gravity: 0.04 });
   }
 
-  // SPIRAL - XoÃ¡y á»‘c lÃªn
+  // SPIRAL - Xoáy ốc lên
   createSpiral(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -568,12 +568,12 @@ class FireworksUltimate {
       sprite.position.copy(position);
       sprite.scale.set(Math.random() * 0.15 + 0.1, Math.random() * 0.15 + 0.1, 1);
       this.scene.add(sprite);
-      const t = (i / 80) * Math.PI * 4; // 2 vÃ²ng xoáº¯n
+      const t = (i / 80) * Math.PI * 4; // 2 vòng xoắn
       const speed = 5;
       particles.push({
         sprite,
         vx: Math.cos(t) * speed,
-        vy: Math.abs(Math.sin(t)) * 4 + 2, // LuÃ´n bay lÃªn
+        vy: Math.abs(Math.sin(t)) * 4 + 2, // Luôn bay lên
         vz: Math.sin(t) * speed,
         life: 1.0, decay: 0.006, type: 'spiral'
       });
@@ -581,7 +581,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'spiral', particles, gravity: 0.03 });
   }
 
-  // STROBE - Chá»›p táº¯t liÃªn tá»¥c
+  // STROBE - Chớp tắt liên tục
   createStrobe(position, color) {
     this.createFlash(position, color);
     const colorObj = new THREE.Color(color);
@@ -610,7 +610,7 @@ class FireworksUltimate {
     this.activeFireworks.push({ type: 'strobe', particles, gravity: 0.045 });
   }
 
-  // CELEBRATION - 15 quáº£ tá»a rá»™ng
+  // CELEBRATION - 15 quả tỏa rộng
   launchCelebration() {
     const colors = [0xff4d8d, 0xffd166, 0xa786ff, 0xff9a5a, 0x4dff88, 0xff6b6b, 0x66d9ff, 0xff85a1];
     for (let i = 0; i < 15; i++) {
@@ -693,7 +693,7 @@ class FireworksUltimate {
         p.sprite.position.z += p.vz * 0.02;
         p.life -= p.decay;
         
-        // Strobe effect - chá»›p táº¯t
+        // Strobe effect - chớp tắt
         if (p.type === 'strobe') {
           p.strobePhase = (p.strobePhase || 0) + p.flickerRate;
           p.sprite.material.opacity = Math.sin(p.strobePhase) > 0.3 ? Math.max(0, p.life) : 0;
@@ -752,20 +752,20 @@ class FireworksUltimate {
     }
   }
 
-  start(duration = 0) { // 0 = vÄ©nh viá»…n
+  start(duration = 0) { // 0 = vĩnh viễn
     this.isActive = true;
-    // LÆ°u thá»i Ä‘iá»ƒm báº¯t Ä‘áº§u Ä‘á»ƒ reset interval
+    // Lưu thời điểm bắt đầu để reset interval
     this.lastTick = Date.now();
     this.interval = setInterval(() => {
-      // Kiá»ƒm tra tab cÃ³ Ä‘ang áº©n khÃ´ng - náº¿u cÃ³ thÃ¬ skip
+      // Kiểm tra tab có đang ẩn không - nếu có thì skip
       if (document.hidden) {
         return;
       }
-      // Äáº£m báº£o khÃ´ng cÃ³ quÃ¡ nhiá»u rocket Ä‘ang bay (giá»›i háº¡n 30)
+      // Đảm bảo không có quá nhiều rocket đang bay (giới hạn 30)
       if (this.rockets.length > 30) {
         return;
       }
-      // Äáº¿m tá»•ng particles Ä‘ang active
+      // Đếm tổng particles đang active
       let totalParticles = 0;
       for (const fw of this.activeFireworks) {
         totalParticles += (fw.particles || []).length;
@@ -773,7 +773,7 @@ class FireworksUltimate {
       if (totalParticles > 1500) {
         return;
       }
-      // Báº¯n 1-3 quáº£ má»—i láº§n
+      // Bắn 1-3 quả mỗi lần
       const count = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : 1;
       for (let i = 0; i < count; i++) {
         this.launchRandom();
@@ -793,14 +793,14 @@ class FireworksUltimate {
 const birthdayNotes = [
   { f: 262, d: 0.5, t: 'Hap' }, { f: 262, d: 0.5, t: 'py' },
   { f: 294, d: 1.0, t: 'Birth' }, { f: 262, d: 1.0, t: 'day' },
-  { f: 349, d: 1.0, t: 'To' }, { f: 330, d: 2.0, t: 'You âœ¨' },
+  { f: 349, d: 1.0, t: 'To' }, { f: 330, d: 2.0, t: 'You ✨' },
   { f: 262, d: 0.5, t: 'Hap' }, { f: 262, d: 0.5, t: 'py' },
   { f: 294, d: 1.0, t: 'Birth' }, { f: 262, d: 1.0, t: 'day' },
-  { f: 392, d: 1.0, t: 'To' }, { f: 349, d: 2.0, t: 'You ðŸŒ¸' },
+  { f: 392, d: 1.0, t: 'To' }, { f: 349, d: 2.0, t: 'You 🌸' },
   { f: 262, d: 0.5, t: 'Hap' }, { f: 262, d: 0.5, t: 'py' },
   { f: 523, d: 1.0, t: 'Birth' }, { f: 440, d: 1.0, t: 'day' },
-  { f: 349, d: 1.0, t: 'Nguyá»…n' }, { f: 330, d: 1.0, t: 'Lan' },
-  { f: 294, d: 2.5, t: '20 Tuá»•i ðŸŽ‚' }
+  { f: 349, d: 1.0, t: 'Nguyễn' }, { f: 330, d: 1.0, t: 'Lan' },
+  { f: 294, d: 2.5, t: '20 Tuổi 🎂' }
 ];
 
 const ribbonEl = document.getElementById('musical-ribbon');
@@ -864,17 +864,20 @@ scene.background = new THREE.Color(0x05020a);
 scene.fog = new THREE.FogExp2(0x090414, 0.018);
 
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
-// GÃ³c nhÃ¬n rá»™ng nháº¥t - bao quÃ¡t cáº£ bÃ¡nh vÃ  áº£nh xung quanh (radius 12)
-// Khoáº£ng cÃ¡ch 28 Ä‘Æ¡n vá»‹, FOV 65 - tháº¥y cáº£ bÃ¡nh á»Ÿ giá»¯a vÃ  áº£nh Ä‘á»‘i diá»‡n
-// height_diff = 28 Ã— tan(30Â°) = 16.2, camera.y = 2.5 + 16.2 = 18.7
-camera.position.set(0, 18.7, 28);
+// Góc nhìn rộng nhất - FOV 65, xa 22 đơn vị, cao 12.7 để có 30° từ trên xuống
+// angle = atan2(12.7 - 2.5, 22) = atan2(10.2, 22) ≈ 24.85° (từ mặt phẳng ngang)
+// Tính lại: muốn 30° từ trên xuống nghĩa là góc giữa camera-target và mặt ngang = 30°
+// height_diff / distance = tan(30°) = 0.577
+// distance = 22, height_diff = 22 × 0.577 = 12.7
+// target.y = 2.5, camera.y = 2.5 + 12.7 = 15.2
+camera.position.set(0, 15.2, 22);
 camera.lookAt(0, 2.5, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1; // TÄƒng nháº¹ tá»« 0.95
+renderer.toneMappingExposure = 1.1; // Tăng nhẹ từ 0.95
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 webglContainer.appendChild(renderer.domElement);
@@ -882,7 +885,7 @@ webglContainer.appendChild(renderer.domElement);
 const renderPass = new RenderPass(scene, camera);
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.35, 0.4, 0.55 // Bloom ráº¥t nháº¹ - trÃ¡nh chÃ³i bÃ¡nh
+  0.35, 0.4, 0.55 // Bloom rất nhẹ - tránh chói bánh
 );
 const composer = new EffectComposer(renderer);
 composer.addPass(renderPass);
@@ -892,14 +895,14 @@ composer.addPass(new OutputPass());
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.maxPolarAngle = Math.PI / 2 + 0.05; // Giá»›i háº¡n ~90Â° + 3Â°
-controls.minDistance = 10;
-controls.maxDistance = 38;
+controls.maxPolarAngle = Math.PI / 2 + 0.05; // Giới hạn ~90° + 3°
+controls.minDistance = 8;
+controls.maxDistance = 30;
 controls.target.set(0, 2.5, 0);
-// Tá»± Ä‘á»™ng xoay quanh bÃ¡nh - tá»‘c Ä‘á»™ nháº¹ nhÃ ng
+// Tự động xoay quanh bánh - tốc độ nhẹ nhàng
 controls.autoRotate = true;
-controls.autoRotateSpeed = 1.4; // Xoay nhanh hÆ¡n, váº«n nháº¹ nhÃ ng
-// Khi user tÆ°Æ¡ng tÃ¡c thÃ¬ dá»«ng xoay táº¡m thá»i
+controls.autoRotateSpeed = 1.4; // Xoay nhanh hơn, vẫn nhẹ nhàng
+// Khi user tương tác thì dừng xoay tạm thời
 let userInteractTimeout = null;
 controls.addEventListener('start', () => {
   controls.autoRotate = false;
@@ -942,7 +945,7 @@ const cakeRoot = new THREE.Group();
 scene.add(cakeRoot);
 
 /* ============================================================================
-   7. 3 LOáº I BÃNH Vá»šI 20 Náº¾N
+   7. 3 LOẠI BÁNH VỚI 20 NẾN
    ============================================================================ */
 const matPedestal = new THREE.MeshPhysicalMaterial({
   color: 0xffffff, roughness: 0.15, metalness: 0.05, transmission: 0.2, thickness: 0.5
@@ -956,24 +959,24 @@ const matSilver = new THREE.MeshStandardMaterial({
   emissive: 0x111111, emissiveIntensity: 0.15
 });
 
-// 3 LOáº I BÃNH Äáº¸P
+// 3 LOẠI BÁNH ĐẸP
 const cakeThemes = [
   { 
-    name: 'ðŸ“ Strawberry Dream', 
+    name: '🍓 Strawberry Dream', 
     sponge: 0xffb3c6, 
     frosting: 0xfff0f5, 
     accent: 0xff2a6d,
     candleColor: 0xff85b3
   },
   { 
-    name: 'ðŸŒˆ Rainbow Delight', 
+    name: '🌈 Rainbow Delight', 
     sponge: [0xff6b6b, 0xffa06b, 0xffd166, 0x90EE90, 0x87CEEB, 0xDDA0DD],
     frosting: 0xfffaf0, 
     accent: 0xffd700,
     candleColor: 0xffd166
   },
   { 
-    name: 'ðŸŒŸ Vanilla Elegant', 
+    name: '🌟 Vanilla Elegant', 
     sponge: 0xfff8e7, 
     frosting: 0xffe4b5, 
     accent: 0xffd700,
@@ -998,7 +1001,7 @@ function createMaterials(themeIdx) {
   matFrosting = new THREE.MeshStandardMaterial({ color: t.frosting, roughness: 0.5, metalness: 0.01 });
   matAccent = new THREE.MeshStandardMaterial({ 
     color: t.accent, roughness: 0.5, metalness: 0.02
-    // Bá» emissive hoÃ n toÃ n
+    // Bỏ emissive hoàn toàn
   });
 }
 
@@ -1015,26 +1018,26 @@ function createStrawberryCake() {
   clearCake();
   createMaterials(0);
   
-  // Äáº¿ bÃ¡nh
+  // Đế bánh
   const plate = new THREE.Mesh(new THREE.CylinderGeometry(3.8, 3.5, 0.3, 64), matPedestal);
   plate.position.y = -0.15; plate.receiveShadow = true;
   cakeRoot.add(plate);
   
-  // Viá»n vÃ ng
+  // Viền vàng
   const goldRing = new THREE.Mesh(new THREE.TorusGeometry(3.6, 0.1, 16, 100), matGoldTrim);
   goldRing.rotation.x = Math.PI / 2; goldRing.position.y = 0.0;
   cakeRoot.add(goldRing);
   
-  // Táº§ng 1 (Ä‘Ã¡y)
+  // Tầng 1 (đáy)
   const tier1 = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.2, 1.8, 64), matTier1);
   tier1.position.y = 0.9; tier1.castShadow = true; tier1.receiveShadow = true;
   cakeRoot.add(tier1);
   
-  // Frosting táº§ng 1
+  // Frosting tầng 1
   const frost1 = new THREE.Mesh(new THREE.CylinderGeometry(3.25, 3.25, 0.25, 64), matFrosting);
   frost1.position.y = 1.92; cakeRoot.add(frost1);
   
-  // Drip frosting táº§ng 1
+  // Drip frosting tầng 1
   for (let i = 0; i < 50; i++) {
     const theta = (i / 50) * Math.PI * 2;
     const dripLen = 0.4 + 0.25 * Math.sin(i * 4) + 0.15 * Math.cos(i * 6);
@@ -1043,7 +1046,7 @@ function createStrawberryCake() {
     cakeRoot.add(drip);
   }
   
-  // Hoa há»“ng táº§ng 1
+  // Hoa hồng tầng 1
   for (let i = 0; i < 35; i++) {
     const a = (i / 35) * Math.PI * 2;
     const rose = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), matFrosting);
@@ -1052,16 +1055,16 @@ function createStrawberryCake() {
     cakeRoot.add(rose);
   }
   
-  // Táº§ng 2 (giá»¯a)
+  // Tầng 2 (giữa)
   const tier2 = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, 1.5, 64), matTier2);
   tier2.position.y = 2.8; tier2.castShadow = true; tier2.receiveShadow = true;
   cakeRoot.add(tier2);
   
-  // Frosting táº§ng 2
+  // Frosting tầng 2
   const frost2 = new THREE.Mesh(new THREE.CylinderGeometry(2.35, 2.35, 0.22, 64), matFrosting);
   frost2.position.y = 3.66; cakeRoot.add(frost2);
   
-  // DÃ¢u tÃ¢y trang trÃ­ táº§ng 2
+  // Dâu tây trang trí tầng 2
   for (let i = 0; i < 12; i++) {
     const angle = (i / 12) * Math.PI * 2;
     const r = 1.9;
@@ -1086,16 +1089,16 @@ function createStrawberryCake() {
     cakeRoot.add(berry);
   }
   
-  // Táº§ng 3 (trÃªn)
+  // Tầng 3 (trên)
   const tier3 = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 1.2, 64), matTier3);
   tier3.position.y = 4.55; tier3.castShadow = true; tier3.receiveShadow = true;
   cakeRoot.add(tier3);
   
-  // Frosting táº§ng 3
+  // Frosting tầng 3
   const frost3 = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.45, 0.2, 64), matFrosting);
   frost3.position.y = 5.26; cakeRoot.add(frost3);
   
-  // Hoa trÃªn cÃ¹ng
+  // Hoa trên cùng
   for (let i = 0; i < 6; i++) {
     const angle = (i / 6) * Math.PI * 2;
     const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 12), matGoldTrim);
@@ -1114,17 +1117,17 @@ function createRainbowCake() {
   createMaterials(1);
   const t = cakeThemes[1];
   
-  // Äáº¿ bÃ¡nh
+  // Đế bánh
   const plate = new THREE.Mesh(new THREE.CylinderGeometry(4.0, 3.7, 0.35, 64), matPedestal);
   plate.position.y = -0.175; plate.receiveShadow = true;
   cakeRoot.add(plate);
   
-  // Viá»n báº¡c
+  // Viền bạc
   const silverRing = new THREE.Mesh(new THREE.TorusGeometry(3.85, 0.12, 16, 100), matSilver);
   silverRing.rotation.x = Math.PI / 2; silverRing.position.y = 0.0;
   cakeRoot.add(silverRing);
   
-  // 6 táº§ng cáº§u vá»“ng
+  // 6 tầng cầu vồng
   const rainbowColors = t.sponge;
   const tierHeights = [1.5, 1.3, 1.1, 0.9, 0.7, 0.5];
   const tierRadii = [3.4, 2.9, 2.4, 1.9, 1.4, 0.9];
@@ -1142,7 +1145,7 @@ function createRainbowCake() {
     tier.castShadow = true; tier.receiveShadow = true;
     cakeRoot.add(tier);
     
-    // Frosting giá»¯a cÃ¡c táº§ng
+    // Frosting giữa các tầng
     if (i < 5) {
       const frost = new THREE.Mesh(
         new THREE.CylinderGeometry(tierRadii[i] + 0.05, tierRadii[i] + 0.05, 0.15, 64),
@@ -1155,7 +1158,7 @@ function createRainbowCake() {
     currentY += tierHeights[i] + 0.15;
   }
   
-  // Frosting trÃªn cÃ¹ng
+  // Frosting trên cùng
   const topFrost = new THREE.Mesh(
     new THREE.CylinderGeometry(tierRadii[5] + 0.05, tierRadii[5] + 0.05, 0.18, 64),
     matFrosting
@@ -1163,7 +1166,7 @@ function createRainbowCake() {
   topFrost.position.y = currentY + 0.09;
   cakeRoot.add(topFrost);
   
-  // Äiá»ƒm nháº¥n trÃªn cÃ¹ng - ngÃ´i sao vÃ ng
+  // Điểm nhấn trên cùng - ngôi sao vàng
   for (let i = 0; i < 8; i++) {
     const angle = (i / 8) * Math.PI * 2;
     const star = new THREE.Mesh(
@@ -1189,7 +1192,7 @@ function createVanillaCake() {
   clearCake();
   createMaterials(2);
   
-  // Äáº¿ bÃ¡nh
+  // Đế bánh
   const plate = new THREE.Mesh(
     new THREE.CylinderGeometry(3.6, 3.3, 0.3, 64),
     new THREE.MeshPhysicalMaterial({ 
@@ -1200,12 +1203,12 @@ function createVanillaCake() {
   plate.position.y = -0.15; plate.receiveShadow = true;
   cakeRoot.add(plate);
   
-  // Viá»n vÃ ng
+  // Viền vàng
   const goldRing = new THREE.Mesh(new THREE.TorusGeometry(3.45, 0.1, 16, 100), matGoldTrim);
   goldRing.rotation.x = Math.PI / 2; goldRing.position.y = 0.0;
   cakeRoot.add(goldRing);
   
-  // Táº§ng 1
+  // Tầng 1
   const tier1 = new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.0, 1.6, 64), matTier1);
   tier1.position.y = 0.8; tier1.castShadow = true; tier1.receiveShadow = true;
   cakeRoot.add(tier1);
@@ -1213,7 +1216,7 @@ function createVanillaCake() {
   const frost1 = new THREE.Mesh(new THREE.CylinderGeometry(3.05, 3.05, 0.2, 64), matFrosting);
   frost1.position.y = 1.7; cakeRoot.add(frost1);
   
-  // Hoa vanilla táº§ng 1
+  // Hoa vanilla tầng 1
   for (let i = 0; i < 24; i++) {
     const angle = (i / 24) * Math.PI * 2;
     const petal = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), matGoldTrim);
@@ -1222,7 +1225,7 @@ function createVanillaCake() {
     cakeRoot.add(petal);
   }
   
-  // Táº§ng 2
+  // Tầng 2
   const tier2 = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.1, 1.4, 64), matTier2);
   tier2.position.y = 2.5; tier2.castShadow = true; tier2.receiveShadow = true;
   cakeRoot.add(tier2);
@@ -1230,7 +1233,7 @@ function createVanillaCake() {
   const frost2 = new THREE.Mesh(new THREE.CylinderGeometry(2.15, 2.15, 0.18, 64), matFrosting);
   frost2.position.y = 3.29; cakeRoot.add(frost2);
   
-  // Táº§ng 3
+  // Tầng 3
   const tier3 = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 1.0, 64), matTier3);
   tier3.position.y = 4.24; tier3.castShadow = true; tier3.receiveShadow = true;
   cakeRoot.add(tier3);
@@ -1238,7 +1241,7 @@ function createVanillaCake() {
   const frost3 = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.15, 64), matFrosting);
   frost3.position.y = 4.82; cakeRoot.add(frost3);
   
-  // Hoa há»“ng trÃªn cÃ¹ng
+  // Hoa hồng trên cùng
   const flowerCenter = new THREE.Mesh(new THREE.SphereGeometry(0.28, 24, 24), matGoldTrim);
   flowerCenter.position.y = 5.0; cakeRoot.add(flowerCenter);
   
@@ -1259,13 +1262,13 @@ function buildCake(themeIdx) {
     case 2: createVanillaCake(); break;
   }
   const titleEl = document.getElementById('cake-title');
-  if (titleEl) titleEl.textContent = cakeThemes[themeIdx].name + ' â€¢ Sweet 20th Birthday ðŸŽ‚';
+  if (titleEl) titleEl.textContent = cakeThemes[themeIdx].name + ' • Sweet 20th Birthday 🎂';
 }
 
 buildCake(0);
 
 /* ============================================================================
-   8. NGá»ŒN Lá»¬A Náº¾N - 20 Náº¾N
+   8. NGỌN LỬA NẾN - 20 NẾN
    ============================================================================ */
 const flameVertexShader = `
   uniform float uTime;
@@ -1349,42 +1352,42 @@ function createCandles() {
   const t = cakeThemes[currentThemeIdx];
   const candleColor = t.candleColor;
   
-  // BaseY cho tá»«ng loáº¡i bÃ¡nh - trÃªn máº·t táº§ng trÃªn cÃ¹ng
+  // BaseY cho từng loại bánh - trên mặt tầng trên cùng
   let baseY;
   if (currentThemeIdx === 0) {
-    // Strawberry: táº§ng 3 trÃªn cÃ¹ng cao 4.55-5.26
+    // Strawberry: tầng 3 trên cùng cao 4.55-5.26
     baseY = 5.0;
   } else if (currentThemeIdx === 1) {
-    // Rainbow: cáº¯m náº¿n trÃªn Táº¦NG 5 (rá»™ng 1.4) thay vÃ¬ táº§ng 6 (chá»‰ 0.9)
-    // Táº§ng 5 cao: 0.175 + 1.5 + 0.15 + 1.3 + 0.15 + 1.1 + 0.15 + 0.9 + 0.15 = 5.575
+    // Rainbow: cắm nến trên TẦNG 5 (rộng 1.4) thay vì tầng 6 (chỉ 0.9)
+    // Tầng 5 cao: 0.175 + 1.5 + 0.15 + 1.3 + 0.15 + 1.1 + 0.15 + 0.9 + 0.15 = 5.575
     baseY = 5.45;
   } else {
-    // Vanilla: táº§ng 3 cao 4.24-4.82
+    // Vanilla: tầng 3 cao 4.24-4.82
     baseY = 4.6;
   }
   
-  // 20 náº¿n cáº¯m Ä‘á»u - chia 2 vÃ²ng
-  // VÃ²ng ngoÃ i: 12 náº¿n (bÃ¡n kÃ­nh lá»›n)
-  // VÃ²ng trong: 8 náº¿n (bÃ¡n kÃ­nh nhá»)
+  // 20 nến cắm đều - chia 2 vòng
+  // Vòng ngoài: 12 nến (bán kính lớn)
+  // Vòng trong: 8 nến (bán kính nhỏ)
   
-  // BÃ¡n kÃ­nh khÃ¡c nhau theo táº§ng - Ä‘áº£m báº£o khÃ´ng trÆ°á»£t khá»i táº§ng
+  // Bán kính khác nhau theo tầng - đảm bảo không trượt khỏi tầng
   let outerRadius, innerRadius;
   if (currentThemeIdx === 0) {
-    // Strawberry: táº§ng 3 rá»™ng 1.4 â†’ radius 1.2 OK
+    // Strawberry: tầng 3 rộng 1.4 → radius 1.2 OK
     outerRadius = 1.2; innerRadius = 0.6;
   } else if (currentThemeIdx === 1) {
-    // Rainbow: táº§ng 5 rá»™ng 1.4 â†’ radius 0.7 trong Ä‘Æ°á»ng kÃ­nh nhÆ°ng á»Ÿ gÃ³c trÆ°á»£t
-    // DÃ¹ng radius nhá» Ä‘á»ƒ cháº¯c cháº¯n náº±m trÃªn táº§ng
+    // Rainbow: tầng 5 rộng 1.4 → radius 0.7 trong đường kính nhưng ở góc trượt
+    // Dùng radius nhỏ để chắc chắn nằm trên tầng
     outerRadius = 0.6; innerRadius = 0.25;
   } else {
-    // Vanilla: táº§ng 3 rá»™ng 1.2 â†’ radius 1.0 OK
+    // Vanilla: tầng 3 rộng 1.2 → radius 1.0 OK
     outerRadius = 1.0; innerRadius = 0.5;
   }
   
-  // MÃ u náº¿n Ä‘a dáº¡ng
+  // Màu nến đa dạng
   const colors = [0xff6b6b, 0xffa06b, 0xffd166, 0x90EE90, 0x87CEEB, 0xDDA0DD, 0xffffff, 0xff85b3];
   
-  // VÃ²ng ngoÃ i - 12 náº¿n
+  // Vòng ngoài - 12 nến
   for (let i = 0; i < 12; i++) {
     const angle = (i / 12) * Math.PI * 2;
     const color = colors[i % colors.length];
@@ -1398,7 +1401,7 @@ function createCandles() {
     );
   }
   
-  // VÃ²ng trong - 8 náº¿n
+  // Vòng trong - 8 nến
   for (let i = 0; i < 8; i++) {
     const angle = (i / 8) * Math.PI * 2 + Math.PI / 8;
     const color = colors[(i + 4) % colors.length];
@@ -1415,10 +1418,10 @@ function createCandles() {
 createCandles();
 
 /* ============================================================================
-   9. TÆ¯Æ NG TÃC
+   9. TƯƠNG TÁC
    ============================================================================ */
 let candlesLit = true;
-let blowCooldown = false; // NgÄƒn táº¯t náº¿n liÃªn tá»¥c
+let blowCooldown = false; // Ngăn tắt nến liên tục
 const btnBlow = document.getElementById('btn-blow-candles');
 const btnRelight = document.getElementById('btn-relight-candles');
 
@@ -1436,9 +1439,9 @@ function blowOutCandles() {
 function relightCandles() {
   if (candlesLit) return;
   candlesLit = true;
-  blowCooldown = true; // Khi báº­t láº¡i, ngÄƒn mic thá»•i ngay
-  setTimeout(() => blowCooldown = false, 5000); // Cho 5s á»•n Ä‘á»‹nh
-  // Set opacity vá» 1 NGAY Láº¬P Tá»¨C - khÃ´ng lerp cháº­m
+  blowCooldown = true; // Khi bật lại, ngăn mic thổi ngay
+  setTimeout(() => blowCooldown = false, 5000); // Cho 5s ổn định
+  // Set opacity về 1 NGAY LẬP TỨC - không lerp chậm
   flameUniforms.uOpacity.value = 1.0;
   btnBlow.style.display = 'inline-flex';
   btnRelight.style.display = 'none';
@@ -1451,11 +1454,11 @@ document.getElementById('btn-preset-theme').addEventListener('click', () => {
   currentThemeIdx = (currentThemeIdx + 1) % 3;
   buildCake(currentThemeIdx);
   createCandles();
-  // Reset flame opacity khi Ä‘á»•i bÃ¡nh
+  // Reset flame opacity khi đổi bánh
   flameUniforms.uOpacity.value = candlesLit ? 1.0 : 0.0;
 });
 
-// ÄÃ£ bá» hoÃ n toÃ n microphone - chá»‰ thá»•i náº¿n qua nÃºt
+// Đã bỏ hoàn toàn microphone - chỉ thổi nến qua nút
 // micInitialized = false;
 
 document.getElementById('btn-replay-music').addEventListener('click', () => playBirthdayMelody());
@@ -1466,8 +1469,8 @@ document.getElementById('btn-to-stage-3').addEventListener('click', () => {
   stage2El.classList.add('stage-hidden');
   stage3UiEl.classList.remove('stage-hidden');
   webglContainer.classList.add('active');
-  // ÄÃ£ bá» mic - khÃ´ng gá»i initMicrophoneBlowDetector
-  fireworks3D.start(0); // 0 = vÄ©nh viá»…n
+  // Đã bỏ mic - không gọi initMicrophoneBlowDetector
+  fireworks3D.start(0); // 0 = vĩnh viễn
 });
 
 document.getElementById('btn-back-wishes').addEventListener('click', () => {
@@ -1476,250 +1479,6 @@ document.getElementById('btn-back-wishes').addEventListener('click', () => {
   stage2El.classList.remove('stage-hidden');
   fireworks3D.stop();
 });
-
-/* ============================================================================
-   9.5. Há»† THá»NG áº¢NH Ká»¶ NIá»†M - KHUNG TRANH 3D XUNG QUANH BÃNH (Äáº¶T TRÆ¯á»šC ANIMATE)
-   ============================================================================ */
-
-// State quáº£n lÃ½ áº£nh
-const photoSystem = {
-  frames: [],          // Máº£ng cÃ¡c group khung áº£nh
-  photos: [],          // Máº£ng URL áº£nh Ä‘Ã£ táº£i
-  radius: 12,          // BÃ¡n kÃ­nh vÃ²ng trÃ²n
-  height: 5,           // Äá»™ cao tÃ¢m khung
-  frameWidth: 2.8,
-  frameHeight: 2.8,
-  visible: true,
-  group: null
-};
-
-// Táº¡o group chá»©a táº¥t cáº£ khung
-photoSystem.group = new THREE.Group();
-scene.add(photoSystem.group);
-
-// Táº¡o texture placeholder cho áº£nh máº·c Ä‘á»‹nh
-function createPlaceholderTexture(text, bgColor) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 512; canvas.height = 512;
-  const ctx = canvas.getContext('2d');
-  // Gradient ná»n
-  const grad = ctx.createLinearGradient(0, 0, 512, 512);
-  grad.addColorStop(0, bgColor);
-  grad.addColorStop(1, '#ffffff20');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 512, 512);
-  // Text
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 60px "Dancing Script", cursive';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, 256, 256);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-}
-
-// Táº¡o 1 khung áº£nh 3D - vá»›i viá»n vÃ ng, máº·t kÃ­nh
-function createPhotoFrame(index, total, photoTexture) {
-  const group = new THREE.Group();
-  // GÃ³c xung quanh trá»¥c Y
-  const angle = (index / total) * Math.PI * 2;
-  const x = Math.cos(angle) * photoSystem.radius;
-  const z = Math.sin(angle) * photoSystem.radius;
-  group.position.set(x, photoSystem.height, z);
-  // Xoay máº·t khung hÆ°á»›ng vá» phÃ­a tÃ¢m bÃ¡nh
-  group.lookAt(0, photoSystem.height, 0);
-  // Xoay thÃªm 180Â° vÃ¬ lookAt hÆ°á»›ng -Z nhÆ°ng ta muá»‘n +Z (máº·t trÆ°á»›c)
-  group.rotation.y += Math.PI;
-  
-  // KÃ­ch thÆ°á»›c khung
-  const fw = photoSystem.frameWidth;
-  const fh = photoSystem.frameHeight;
-  
-  // 1. Viá»n ngoÃ i - vÃ ng kim
-  const frameMat = new THREE.MeshStandardMaterial({
-    color: 0xffd700, metalness: 0.8, roughness: 0.25, emissive: 0x553300, emissiveIntensity: 0.1
-  });
-  const frameDepth = 0.15;
-  // 4 thanh viá»n
-  const top = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.2, 0.2, frameDepth), frameMat);
-  top.position.y = fh/2 + 0.05;
-  group.add(top);
-  const bottom = new THREE.Mesh(new THREE.BoxGeometry(fw + 0.2, 0.2, frameDepth), frameMat);
-  bottom.position.y = -fh/2 - 0.05;
-  group.add(bottom);
-  const left = new THREE.Mesh(new THREE.BoxGeometry(0.2, fh + 0.4, frameDepth), frameMat);
-  left.position.x = -fw/2 - 0.05;
-  group.add(left);
-  const right = new THREE.Mesh(new THREE.BoxGeometry(0.2, fh + 0.4, frameDepth), frameMat);
-  right.position.x = fw/2 + 0.05;
-  group.add(right);
-  
-  // 2. Background Ä‘en sau áº£nh
-  const bgMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
-  const bg = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), bgMat);
-  bg.position.z = -0.04;
-  group.add(bg);
-  
-  // 3. Máº·t áº£nh
-  const photoMat = new THREE.MeshStandardMaterial({
-    map: photoTexture, roughness: 0.6, metalness: 0.0, side: THREE.FrontSide
-  });
-  const photo = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), photoMat);
-  photo.position.z = 0.0;
-  group.add(photo);
-  
-  // 4. Máº·t kÃ­nh phÃ­a trÆ°á»›c (trong suá»‘t, cÃ³ reflection)
-  const glassMat = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff, transparent: true, opacity: 0.15, 
-    roughness: 0.05, metalness: 0.0, transmission: 0.3, ior: 1.5,
-    clearcoat: 1.0, clearcoatRoughness: 0.0
-  });
-  const glass = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), glassMat);
-  glass.position.z = 0.05;
-  group.add(glass);
-  
-  // 5. Viá»n trang trÃ­ - gÃ³c bo trÃ²n
-  const cornerMat = new THREE.MeshStandardMaterial({
-    color: 0xffe066, metalness: 0.9, roughness: 0.2
-  });
-  // 4 gÃ³c nhá»
-  const cs = 0.25;
-  const corners = [
-    { x: fw/2 + 0.05, y: fh/2 + 0.05 },
-    { x: -fw/2 - 0.05, y: fh/2 + 0.05 },
-    { x: fw/2 + 0.05, y: -fh/2 - 0.05 },
-    { x: -fw/2 - 0.05, y: -fh/2 - 0.05 }
-  ];
-  corners.forEach(c => {
-    const corner = new THREE.Mesh(new THREE.SphereGeometry(cs * 0.6, 12, 12), cornerMat);
-    corner.position.set(c.x, c.y, frameDepth/2);
-    group.add(corner);
-  });
-  
-  // 6. ÄÃ¨n LED nhá» chiáº¿u áº£nh
-  const led = new THREE.PointLight(0xffd166, 0.6, 4);
-  led.position.z = 1.5;
-  group.add(led);
-  
-  // LÆ°u thÃ´ng tin Ä‘á»ƒ cáº­p nháº­t sau
-  group.userData = { index, photo, photoMat, angle, photoTexture };
-  return group;
-}
-
-// Sáº¯p xáº¿p áº£nh theo vÃ²ng trÃ²n
-function layoutPhotos() {
-  // XÃ³a khung cÅ©
-  photoSystem.frames.forEach(f => photoSystem.group.remove(f));
-  photoSystem.frames = [];
-  
-  const total = photoSystem.photos.length;
-  if (total < 5 || total > 20) return;
-  
-  for (let i = 0; i < total; i++) {
-    const frame = createPhotoFrame(i, total, photoSystem.photos[i]);
-    photoSystem.frames.push(frame);
-    photoSystem.group.add(frame);
-  }
-}
-
-// Toggle hiá»ƒn thá»‹
-function setPhotosVisible(visible) {
-  photoSystem.visible = visible;
-  photoSystem.group.visible = visible;
-}
-
-// ==== UPLOAD & Xá»¬ LÃ áº¢NH ====
-const photoUpload = document.getElementById('photo-upload');
-const btnTogglePhotos = document.getElementById('btn-toggle-photos');
-let photosActive = true;
-
-photoUpload.addEventListener('change', async (e) => {
-  const files = Array.from(e.target.files);
-  if (files.length < 5) {
-    alert('Cáº§n tá»‘i thiá»ƒu 5 áº£nh! Vui lÃ²ng chá»n tá»« 5-20 áº£nh.');
-    return;
-  }
-  if (files.length > 20) {
-    alert('Tá»‘i Ä‘a 20 áº£nh! Báº¡n Ä‘Ã£ chá»n ' + files.length + ' áº£nh, sáº½ láº¥y 20 áº£nh Ä‘áº§u tiÃªn.');
-  }
-  
-  const limitedFiles = files.slice(0, 20);
-  const textures = [];
-  const bgColors = ['#ff85b3', '#87ceeb', '#90ee90', '#ffd166', '#dda0dd', '#ff6b6b', '#ffa06b'];
-  
-  for (let i = 0; i < limitedFiles.length; i++) {
-    const file = limitedFiles[i];
-    try {
-      const url = await readFileAsDataURL(file);
-      const tex = await loadImageTexture(url);
-      textures.push(tex);
-    } catch (err) {
-      const placeholder = createPlaceholderTexture('ðŸ’– ' + (i+1), bgColors[i % bgColors.length]);
-      textures.push(placeholder);
-    }
-  }
-  
-  // Pad vá»›i placeholder náº¿u < 5
-  while (textures.length < 5) {
-    const placeholder = createPlaceholderTexture('ðŸ’– ' + (textures.length+1), bgColors[textures.length % bgColors.length]);
-    textures.push(placeholder);
-  }
-  
-  photoSystem.photos = textures;
-  layoutPhotos();
-  setPhotosVisible(true);
-  photosActive = true;
-  btnTogglePhotos.textContent = 'ðŸ–¼ï¸ áº¨n áº¢nh Ká»· Niá»‡m';
-});
-
-function readFileAsDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function loadImageTexture(url) {
-  return new Promise((resolve, reject) => {
-    new THREE.ImageLoader().load(
-      url,
-      (img) => {
-        const tex = new THREE.Texture(img);
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.needsUpdate = true;
-        resolve(tex);
-      },
-      undefined,
-      reject
-    );
-  });
-}
-
-btnTogglePhotos.addEventListener('click', () => {
-  if (photoSystem.photos.length < 5) {
-    alert('Vui lÃ²ng thÃªm áº£nh trÆ°á»›c (5-20 áº£nh)!');
-    return;
-  }
-  photosActive = !photosActive;
-  setPhotosVisible(photosActive);
-  btnTogglePhotos.textContent = photosActive ? 'ðŸ–¼ï¸ áº¨n áº¢nh Ká»· Niá»‡m' : 'ðŸ–¼ï¸ Hiá»‡n áº¢nh Ká»· Niá»‡m';
-});
-
-// Táº¡o 8 placeholder máº·c Ä‘á»‹nh ngay tá»« Ä‘áº§u
-function initDefaultPhotos() {
-  const captions = ['ðŸ’–', 'ðŸŒ¸', 'âœ¨', 'ðŸŽ€', 'ðŸ¦‹', 'ðŸŒŸ', 'ðŸ’•', 'ðŸŒ·'];
-  const bgColors = ['#ff85b3', '#87ceeb', '#90ee90', '#ffd166', '#dda0dd', '#ff6b6b', '#ffa06b', '#a0d8ef'];
-  for (let i = 0; i < 8; i++) {
-    const tex = createPlaceholderTexture(captions[i], bgColors[i]);
-    photoSystem.photos.push(tex);
-  }
-  layoutPhotos();
-}
-
-initDefaultPhotos();
 
 /* ============================================================================
    10. ANIMATION LOOP
@@ -1732,11 +1491,11 @@ function animate() {
 
   flameUniforms.uTime.value = elapsed;
   
-  // Lerp opacity NHANH HÆ N - khÃ´ng chá» 1s
+  // Lerp opacity NHANH HƠN - không chờ 1s
   const targetOpacity = candlesLit ? 1.0 : 0.0;
-  // Tá»‘c Ä‘á»™ lerp 0.3 thay vÃ¬ 0.08
+  // Tốc độ lerp 0.3 thay vì 0.08
   flameUniforms.uOpacity.value += (targetOpacity - flameUniforms.uOpacity.value) * 0.3;
-  // Snap vá» 0 hoáº·c 1 khi ráº¥t gáº§n (trÃ¡nh trÃ´i ná»•i)
+  // Snap về 0 hoặc 1 khi rất gần (tránh trôi nổi)
   if (flameUniforms.uOpacity.value > 0.99) flameUniforms.uOpacity.value = 1.0;
   if (flameUniforms.uOpacity.value < 0.01) flameUniforms.uOpacity.value = 0.0;
 
@@ -1750,23 +1509,6 @@ function animate() {
   
   sparkleSystem.update(elapsed);
   fireworks3D.update();
-
-  // Billboard: áº£nh luÃ´n hÆ°á»›ng vá» phÃ­a camera (an toÃ n khi chÆ°a sáºµn sÃ ng)
-  if (typeof photoSystem !== 'undefined' && photoSystem && photoSystem.group && photoSystem.group.visible && photoSystem.frames.length > 0) {
-    const camPos = camera.position.clone();
-    photoSystem.frames.forEach(frame => {
-      // TÃ­nh hÆ°á»›ng tá»« khung tá»›i camera
-      const framePos = frame.getWorldPosition(new THREE.Vector3());
-      const dir = new THREE.Vector3().subVectors(camPos, framePos).normalize();
-      // LookAt camera, giá»¯ trá»¥c Y tháº³ng Ä‘á»©ng
-      const lookTarget = new THREE.Vector3(
-        framePos.x + dir.x,
-        framePos.y,
-        framePos.z + dir.z
-      );
-      frame.lookAt(lookTarget);
-    });
-  }
 
   controls.update();
   composer.render();
@@ -1787,19 +1529,19 @@ window.addEventListener('resize', () => {
 });
 
 /* ============================================================================
-   11. PAGE VISIBILITY - PAUSE PHÃO HOA KHI TAB áº¨N
+   11. PAGE VISIBILITY - PAUSE PHÁO HOA KHI TAB ẨN
    ============================================================================ */
 let fireworksPaused = false;
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
-    // Tab bá»‹ áº©n - dá»«ng phÃ¡o hoa
+    // Tab bị ẩn - dừng pháo hoa
     if (fireworks3D.isActive && fireworks3D.interval) {
       clearInterval(fireworks3D.interval);
       fireworks3D.interval = null;
       fireworksPaused = true;
     }
   } else {
-    // Tab hiá»‡n láº¡i - báº¯t Ä‘áº§u láº¡i náº¿u Ä‘ang active
+    // Tab hiện lại - bắt đầu lại nếu đang active
     if (fireworksPaused && fireworks3D.isActive) {
       fireworks3D.start(0);
       fireworksPaused = false;
