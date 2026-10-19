@@ -733,6 +733,11 @@ class FireworksUltimate {
           if (fw.life > 0) allDead = false;
         }
       }
+      // Age tracking - nếu 1 burst tồn tại quá lâu (>6s), ép dispose
+      fw.age = (fw.age || 0) + 1;
+      if (fw.age > 360) {
+        allDead = true;
+      }
       
       if (allDead) {
         (fw.particles || []).forEach(p => {
@@ -762,24 +767,26 @@ class FireworksUltimate {
       if (document.hidden) {
         return;
       }
-      // Đảm bảo không có quá nhiều rocket đang bay (giới hạn 30)
-      if (this.rockets.length > 30) {
+      // Đảm bảo không có quá nhiều rocket đang bay (giới hạn 50)
+      if (this.rockets.length > 50) {
         return;
       }
-      // Đếm tổng particles đang active
+      // Đếm tổng particles đang active (cả sprites của flash)
       let totalParticles = 0;
       for (const fw of this.activeFireworks) {
         totalParticles += (fw.particles || []).length;
+        totalParticles += (fw.sprites || []).length;
       }
-      if (totalParticles > 1500) {
+      if (totalParticles > 2500) {
         return;
       }
-      // Bắn 1-3 quả mỗi lần
-      const count = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : 1;
+      // Bắn 2-5 quả mỗi lần để pháo dày đặc hơn
+      const count = Math.floor(Math.random() * 4) + 2;  // 2..5
       for (let i = 0; i < count; i++) {
-        this.launchRandom();
+        // Jitter nhỏ để không bắn cùng frame
+        setTimeout(() => this.launchRandom(), i * 80);
       }
-    }, 600);
+    }, 400);
   }
 
   stop() {
