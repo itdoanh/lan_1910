@@ -1773,33 +1773,70 @@ function initDefaultPhotos() {
 
 initDefaultPhotos();
 
-// === Xử lý upload ảnh từ input ===
-function readFileAsDataURL(file) {
+// === Xử lý upload ảnh từ input - TỐI ƯU BẰNG CANVAS + COVER ===
+const MAX_TEXTURE_SIZE = 512;       // Resize ảnh về max 512x512 cho 3D
+const JPEG_QUALITY = 0.82;          // Nén JPEG 82% - đẹp và nhẹ
+
+// Đọc file thành HTMLImageElement
+function readFileAsImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = reader.result;
+    };
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
 
-function loadImageTexture(url) {
-  return new Promise((resolve, reject) => {
-    new THREE.ImageLoader().load(
-      url,
-      (img) => {
-        const tex = new THREE.Texture(img);
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.needsUpdate = true;
-        resolve(tex);
-      },
-      undefined,
-      (err) => reject(err)
-    );
-  });
+// Resize + COVER ảnh về kích thước vuông, giữ tỷ lệ - cắt phần thừa
+function processImageToCanvas(image, targetSize = MAX_TEXTURE_SIZE) {
+  const canvas = document.createElement('canvas');
+  canvas.width = targetSize;
+  canvas.height = targetSize;
+  const ctx = canvas.getContext('2d', { willReadFrequently: false });
+
+  const imgW = image.width;
+  const imgH = image.height;
+  // Tính tỷ lệ để "cover" (lấp đầy khung, cắt phần thừa)
+  const scale = Math.max(targetSize / imgW, targetSize / imgH);
+  const newW = imgW * scale;
+  const newH = imgH * scale;
+  // Cắt chính giữa
+  const offsetX = (targetSize - newW) / 2;
+  const offsetY = (targetSize - newH) / 2;
+
+  // Vẽ nền đen (tránh viền trắng nếu ảnh trong suốt)
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, targetSize, targetSize);
+  // Vẽ ảnh đã resize, smooth
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(image, offsetX, offsetY, newW, newH);
+
+  return canvas;
 }
 
-// Event handler upload ảnh
+// Tạo Texture từ canvas đã xử lý - không kéo giãn
+function canvasToTexture(canvas) {
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = THREE.LinearFilter;    // Mượt khi xa
+  tex.magFilter = THREE.LinearFilter;    // Mượt khi gần
+  tex.generateMipmaps = false;            // Tiết kiệm RAM
+  tex.needsUpdate = true;
+  return tex;
+}
+
+// Giải phóng texture cũ trước khi thay mới - tránh leak GPU
+function disposeTexture(tex) {
+  if (tex && tex.dispose) tex.dispose();
+}
+
+// Event handler upload ảnh - tối ưu cho 3D
 const photoUpload = document.getElementById('photo-upload');
 if (photoUpload) {
   photoUpload.addEventListener('change', async (e) => {
@@ -1807,33 +1844,74 @@ if (photoUpload) {
     if (files.length === 0) return;
     if (files.length < PHOTO_CONFIG.minPhotos) {
       alert(`Cần tối thiểu ${PHOTO_CONFIG.minPhotos} ảnh! Bạn chỉ chọn ${files.length} ảnh.`);
+      e.target.value = '';
       return;
     }
     if (files.length > PHOTO_CONFIG.maxPhotos) {
       alert(`Tối đa ${PHOTO_CONFIG.maxPhotos} ảnh! Lấy 20 ảnh đầu.`);
     }
     const limitedFiles = files.slice(0, PHOTO_CONFIG.maxPhotos);
+
+    // Disable nút input trong khi xử lý
+    photoUpload.disabled = true;
+
+    // Giải phóng texture cũ
+    photoSystem.photos.forEach(disposeTexture);
+
+    // Khởi tạo mảng mới
     const newPhotos = [];
     const placeholders = getPlaceholderTextures();
+
+    // Hiện thị progress trên button
+    const originalLabel = photoUpload.parentElement
+      ? photoUpload.parentElement.querySelector('label').textContent
+      : '📷 Thêm Ảnh';
+
+    // Xử lý TỪNG ảnh 1 - tránh kẹt UI
     for (let i = 0; i < limitedFiles.length; i++) {
       try {
-        const url = await readFileAsDataURL(limitedFiles[i]);
-        const tex = await loadImageTexture(url);
+        // Cập nhật label hiển thị tiến trình
+        const labelEl = photoUpload.parentElement
+          ? photoUpload.parentElement.querySelector('label')
+          : null;
+        if (labelEl) labelEl.textContent = `⏳ ${i + 1}/${limitedFiles.length}`;
+
+        // 1. Đọc file → HTMLImageElement
+        const img = await readFileAsImage(limitedFiles[i]);
+
+        // 2. Resize + COVER → Canvas 512x512
+        const canvas = processImageToCanvas(img, MAX_TEXTURE_SIZE);
+
+        // 3. Canvas → THREE.Texture
+        const tex = canvasToTexture(canvas);
+
         newPhotos.push(tex);
+
+        // 4. Yield cho browser - giải phóng event loop
+        await new Promise(r => setTimeout(r, 0));
       } catch (err) {
         console.warn('Ảnh lỗi, dùng placeholder:', err);
         newPhotos.push(placeholders[i % placeholders.length]);
       }
     }
+
     // Pad với placeholder nếu < minPhotos
     while (newPhotos.length < PHOTO_CONFIG.minPhotos) {
       newPhotos.push(placeholders[newPhotos.length % placeholders.length]);
     }
+
+    // Cập nhật hệ thống
     photoSystem.photos = newPhotos;
     layoutPhotos();
-    // Reset input để có thể chọn lại cùng file
+
+    // Reset label & value
+    const labelEl = photoUpload.parentElement
+      ? photoUpload.parentElement.querySelector('label')
+      : null;
+    if (labelEl) labelEl.textContent = originalLabel;
     e.target.value = '';
-    console.log('Đã tải', newPhotos.length, 'ảnh kỷ niệm');
+    photoUpload.disabled = false;
+    console.log(`Đã tải ${newPhotos.length} ảnh (đã resize ${MAX_TEXTURE_SIZE}x${MAX_TEXTURE_SIZE})`);
   });
 }
 
