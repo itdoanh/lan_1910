@@ -1297,7 +1297,7 @@ function buildCake(themeIdx) {
     case 2: createVanillaCake(); break;
   }
   const titleEl = document.getElementById('cake-title');
-  if (titleEl) titleEl.textContent = cakeThemes[themeIdx].name + ' • Sweet 20th Birthday 🎂';
+  if (titleEl) titleEl.textContent = '🎂 Chúc Mừng Sinh Nhật Nguyễn Lan • Sweet 20th 🎂';
 }
 
 buildCake(0);
@@ -1604,11 +1604,11 @@ function createPhotoPlaceholder(text, accentColor) {
 // --- Cache placeholder textures ---
 function getPlaceholderTextures() {
   if (photoSystem.placeholderTextures.length) return photoSystem.placeholderTextures;
-  const captions = ['💖 Ngày 1', '🌸 Hè về', '✨ Kỷ niệm', '🎀 Bên nhau',
-                    '🦋 Bay cao', '🌟 Ước mơ', '💕 Mãi mãi', '🌷 Tươi đẹp',
-                    '💗 Yêu thương', '🌺 Rạch nắng', '☀️ Ngày đẹp', '🎂 Sinh nhật',
-                    '🎉 Happy', '🌈 Cầu vồng', '🍀 May mắn', '🦄 Độc đáo',
-                    '🌙 Đêm', '⭐ Ngôi sao', '🎶 Âm nhạc', '📸 Khoảnh khắc'];
+  const captions = ['🌸 Tuổi 20', '✨ Thanh xuân', '🎀 Kỷ niệm', '💫 Mơ ước',
+                    '🦋 Bay cao', '🌷 Dịu dàng', '🎂 Sinh nhật Lan', '🌟 Hạnh phúc',
+                    '🌺 Ngày đẹp', '💖 Yêu thương', '🌙 Bình yên', '🎉 Chúc mừng',
+                    '🌈 May mắn', '⭐ Tỏa sáng', '🍀 Bình an', '🦄 Độc đáo',
+                    '📸 Khoảnh khắc', '🎶 Ngọt ngào', '☀️ Rạng rỡ', '🌹 Tươi đẹp'];
   const accents = ['#ff85b3', '#e84a8a', '#ff6b9d', '#ff9ec7', '#f7a8c4',
                    '#d4af37', '#ffd700', '#ffaa66', '#ff7f50', '#ff6347'];
   for (let i = 0; i < PHOTO_CONFIG.maxPhotos; i++) {
