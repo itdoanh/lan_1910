@@ -901,7 +901,7 @@ controls.maxDistance = 30;
 controls.target.set(0, 2.5, 0);
 // Tự động xoay quanh bánh - tốc độ nhẹ nhàng
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.6; // 0.6 = chậm, nhẹ nhàng
+controls.autoRotateSpeed = 1.4; // Xoay nhanh hơn, vẫn nhẹ nhàng
 // Khi user tương tác thì dừng xoay tạm thời
 let userInteractTimeout = null;
 controls.addEventListener('start', () => {
