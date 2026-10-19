@@ -1489,8 +1489,10 @@ document.getElementById('btn-back-wishes').addEventListener('click', () => {
 const PHOTO_CONFIG = {
   radius: 28,           // Bán kính xa hơn nữa (cũ 22)
   height: 3,            // Thấp bằng bánh sinh nhật (cũ 7 - quá cao)
-  frameWidth: 8.4,      // Khung TO GẤP ĐÔI (cũ 4.2)
-  frameHeight: 8.4,     // Khung vuông to gấp đôi (cũ 4.2)
+  frameWidth: 8.4,      // Khung TO GẤP ĐÔI (cũ 4.2) - ảnh ÍT
+  frameHeight: 8.4,     // Khung vuông to gấp đôi (cũ 4.2) - ảnh ÍT
+  minFrameSize: 4.5,    // Kích thước tối thiểu khi nhiều ảnh
+  maxFrameSize: 9.5,    // Kích thước tối đa khi rất ít ảnh
   ringTilt: 0.25,       // Nghiêng vòng tròn nhẹ
   floatAmplitude: 0.5,  // Biên độ bay lơ lửng
   floatSpeed: 0.8,      // Tốc độ bay lơ lửng
@@ -1502,6 +1504,20 @@ const PHOTO_CONFIG = {
   maxPhotos: 20,
   defaultCount: 8       // Số ảnh mặc định
 };
+
+// Tính kích thước khung dựa trên số lượng ảnh
+// Ít ảnh → khung to; Nhiều ảnh → khung nhỏ (tránh đè nhau)
+function calculateFrameSize(count) {
+  const cfg = PHOTO_CONFIG;
+  // Chu vi vòng tròn = 2πR, mỗi ảnh cần "đoạn" vừa đủ
+  const circumference = 2 * Math.PI * cfg.radius;
+  // Khoảng cách giữa 2 khung kề nhau (mỗi khung chiếm angle = 2π/count)
+  const arcLength = circumference / count;
+  // Kích thước khung = arcLength × 0.85 (để có khe hở 15%)
+  const fitSize = arcLength * 0.85;
+  // Kẹp trong [minFrameSize, maxFrameSize]
+  return Math.max(cfg.minFrameSize, Math.min(cfg.maxFrameSize, fitSize));
+}
 
 const photoSystem = {
   frames: [],
@@ -1577,6 +1593,10 @@ function createPhotoFrame(index, total, photoTexture) {
   const x = Math.cos(angle) * cfg.radius;
   const z = Math.sin(angle) * cfg.radius;
   group.position.set(x, cfg.height, z);
+
+  // Tính kích thước khung động dựa trên tổng số ảnh
+  const dynamicSize = calculateFrameSize(total);
+  const fw = dynamicSize, fh = dynamicSize;
 
   // Mặt khung hướng về tâm
   group.lookAt(0, cfg.height, 0);
@@ -1774,8 +1794,8 @@ function initDefaultPhotos() {
 initDefaultPhotos();
 
 // === Xử lý upload ảnh từ input - TỐI ƯU BẰNG CANVAS + COVER ===
-const MAX_TEXTURE_SIZE = 512;       // Resize ảnh về max 512x512 cho 3D
-const JPEG_QUALITY = 0.82;          // Nén JPEG 82% - đẹp và nhẹ
+const MAX_TEXTURE_SIZE = 768;       // Resize ảnh về max 768x768 cho 3D - nét hơn
+const JPEG_QUALITY = 0.88;          // Nén JPEG 88% - đẹp và rõ nét
 
 // Đọc file thành HTMLImageElement
 function readFileAsImage(file) {
@@ -1820,13 +1840,14 @@ function processImageToCanvas(image, targetSize = MAX_TEXTURE_SIZE) {
   return canvas;
 }
 
-// Tạo Texture từ canvas đã xử lý - không kéo giãn
+// Tạo Texture từ canvas đã xử lý - không kéo giãn, BẬT mipmaps cho nét
 function canvasToTexture(canvas) {
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
-  tex.minFilter = THREE.LinearFilter;    // Mượt khi xa
-  tex.magFilter = THREE.LinearFilter;    // Mượt khi gần
-  tex.generateMipmaps = false;            // Tiết kiệm RAM
+  tex.minFilter = THREE.LinearMipmapLinearFilter; // Mipmaps cho xa rõ nét
+  tex.magFilter = THREE.LinearFilter;             // Mượt khi gần
+  tex.anisotropy = 4;                              // Anti-aliasing góc nhìn xiên
+  tex.generateMipmaps = true;                      // Bật mipmaps
   tex.needsUpdate = true;
   return tex;
 }
