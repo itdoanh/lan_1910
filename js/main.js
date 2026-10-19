@@ -1485,16 +1485,16 @@ document.getElementById('btn-back-wishes').addEventListener('click', () => {
    9.5. HỆ THỐNG ẢNH KỶ NIỆM 3D - KHUNG VÀNG KIM, BAY XUNG QUANH
    ============================================================================ */
 
-// === CONFIG - Bán kính xa, khung to, đẹp, có animation ===
+// === CONFIG - Bán kính xa, khung to gấp đôi, xoay đồng bộ camera ===
 const PHOTO_CONFIG = {
-  radius: 22,           // Bán kính xa hơn nhiều (cũ 22)
-  height: 7,            // Cao hơn (cũ 5)
-  frameWidth: 4.2,      // Khung to hơn (cũ 2.8)
-  frameHeight: 4.2,     // Khung vuông (cũ 2.8)
-  ringTilt: 0.35,       // Nghiêng vòng tròn cho sinh động
-  floatAmplitude: 0.4,  // Biên độ bay lơ lửng
+  radius: 28,           // Bán kính xa hơn nữa (cũ 22)
+  height: 3,            // Thấp bằng bánh sinh nhật (cũ 7 - quá cao)
+  frameWidth: 8.4,      // Khung TO GẤP ĐÔI (cũ 4.2)
+  frameHeight: 8.4,     // Khung vuông to gấp đôi (cũ 4.2)
+  ringTilt: 0.25,       // Nghiêng vòng tròn nhẹ
+  floatAmplitude: 0.5,  // Biên độ bay lơ lửng
   floatSpeed: 0.8,      // Tốc độ bay lơ lửng
-  rotateSpeed: 0.15,    // Tốc độ xoay vòng (rìa ~ 0.15 rad/s)
+  rotateSpeed: 1.4,     // Đồng bộ với camera autoRotateSpeed (cũ 0.15)
   minPhotos: 5,
   maxPhotos: 20,
   defaultCount: 8       // Số ảnh mặc định
@@ -1760,6 +1760,81 @@ function initDefaultPhotos() {
 }
 
 initDefaultPhotos();
+
+// === Xử lý upload ảnh từ input ===
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImageTexture(url) {
+  return new Promise((resolve, reject) => {
+    new THREE.ImageLoader().load(
+      url,
+      (img) => {
+        const tex = new THREE.Texture(img);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.needsUpdate = true;
+        resolve(tex);
+      },
+      undefined,
+      (err) => reject(err)
+    );
+  });
+}
+
+// Event handler upload ảnh
+const photoUpload = document.getElementById('photo-upload');
+if (photoUpload) {
+  photoUpload.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    if (files.length < PHOTO_CONFIG.minPhotos) {
+      alert(`Cần tối thiểu ${PHOTO_CONFIG.minPhotos} ảnh! Bạn chỉ chọn ${files.length} ảnh.`);
+      return;
+    }
+    if (files.length > PHOTO_CONFIG.maxPhotos) {
+      alert(`Tối đa ${PHOTO_CONFIG.maxPhotos} ảnh! Lấy 20 ảnh đầu.`);
+    }
+    const limitedFiles = files.slice(0, PHOTO_CONFIG.maxPhotos);
+    const newPhotos = [];
+    const placeholders = getPlaceholderTextures();
+    for (let i = 0; i < limitedFiles.length; i++) {
+      try {
+        const url = await readFileAsDataURL(limitedFiles[i]);
+        const tex = await loadImageTexture(url);
+        newPhotos.push(tex);
+      } catch (err) {
+        console.warn('Ảnh lỗi, dùng placeholder:', err);
+        newPhotos.push(placeholders[i % placeholders.length]);
+      }
+    }
+    // Pad với placeholder nếu < minPhotos
+    while (newPhotos.length < PHOTO_CONFIG.minPhotos) {
+      newPhotos.push(placeholders[newPhotos.length % placeholders.length]);
+    }
+    photoSystem.photos = newPhotos;
+    layoutPhotos();
+    // Reset input để có thể chọn lại cùng file
+    e.target.value = '';
+    console.log('Đã tải', newPhotos.length, 'ảnh kỷ niệm');
+  });
+}
+
+// Nút toggle ẩn/hiện ảnh
+const btnTogglePhotos = document.getElementById('btn-toggle-photos');
+if (btnTogglePhotos) {
+  btnTogglePhotos.addEventListener('click', () => {
+    photoSystem.group.visible = !photoSystem.group.visible;
+    btnTogglePhotos.textContent = photoSystem.group.visible
+      ? '🖼️ Ẩn Ảnh Kỷ Niệm'
+      : '🖼️ Hiện Ảnh Kỷ Niệm';
+  });
+}
 
 /* ============================================================================
    10. ANIMATION LOOP
