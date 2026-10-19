@@ -815,6 +815,7 @@ const noteSpans = birthdayNotes.map((n) => {
 
 let audioCtx = null;
 let isPlayingMelody = false;
+let birthdayAudio = null;   // HTMLAudioElement cho file hbbd_lan.mp3
 
 function initAudioContext() {
   if (audioCtx) return audioCtx;
@@ -824,37 +825,70 @@ function initAudioContext() {
   return audioCtx;
 }
 
+// Khởi tạo Audio element cho file nhạc HBBD tự đánh
+function initBirthdayAudio() {
+  if (birthdayAudio) return birthdayAudio;
+  birthdayAudio = new Audio('hbbd_lan.mp3');
+  birthdayAudio.preload = 'auto';
+  birthdayAudio.volume = 0.85;
+  return birthdayAudio;
+}
+
+// Phát nhạc HBBD từ file mp3, kèm hiệu ứng lyric nhảy theo tempo
 function playBirthdayMelody() {
   if (isPlayingMelody) return;
+
   const ctx = initAudioContext();
   if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume();
+
+  const audio = initBirthdayAudio();
+  if (!audio) return;
+
   isPlayingMelody = true;
-  let cursor = ctx.currentTime + 0.08;
-  const tu = 0.28;
+
+  // Reset về đầu nếu đã phát rồi, hoặc load lần đầu
+  audio.currentTime = 0;
+
+  // Phát nhạc (Promise để bắt lỗi autoplay)
+  const playPromise = audio.play();
+  if (playPromise && typeof playPromise.then === 'function') {
+    playPromise.catch((err) => {
+      console.warn('Không thể phát nhạc:', err);
+      isPlayingMelody = false;
+    });
+  }
+
+  // Nhịp lyric cố định: phân bố đều các note trong suốt bài nhạc
+  // Giả định mỗi "từ" trong lyric chiếm khoảng ~0.9s (phù hợp beat nhạc pop)
+  const SECONDS_PER_LYRIC = 0.95;
+
   birthdayNotes.forEach((note, idx) => {
-    const dur = note.d * tu;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(note.f, cursor);
-    gain.gain.setValueAtTime(0.001, cursor);
-    gain.gain.exponentialRampToValueAtTime(0.22, cursor + 0.04);
-    gain.gain.exponentialRampToValueAtTime(0.0001, cursor + dur - 0.02);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(cursor);
-    osc.stop(cursor + dur);
-    const delayMs = (cursor - ctx.currentTime) * 1000;
+    const delayMs = idx * SECONDS_PER_LYRIC * 1000;
     setTimeout(() => {
+      if (!noteSpans[idx]) return;
       noteSpans[idx].classList.remove('jump');
       void noteSpans[idx].offsetWidth;
       noteSpans[idx].classList.add('jump');
-    }, Math.max(0, delayMs));
-    cursor += dur;
+    }, delayMs);
   });
-  const totalMs = (cursor - ctx.currentTime) * 1000;
-  setTimeout(() => { isPlayingMelody = false; }, totalMs);
+
+  // Khi nhạc kết thúc → reset cờ
+  const onEnded = () => {
+    isPlayingMelody = false;
+    audio.removeEventListener('ended', onEnded);
+  };
+  audio.addEventListener('ended', onEnded);
+
+  // Fallback nếu file quá dài hoặc không trigger 'ended': set theo duration
+  const fallbackMs = (() => {
+    if (!isNaN(audio.duration) && audio.duration > 0) {
+      return audio.duration * 1000 + 500;
+    }
+    // Nếu chưa load được duration, fallback 30s
+    return 30000;
+  })();
+  setTimeout(() => { isPlayingMelody = false; }, fallbackMs);
 }
 
 /* ============================================================================
